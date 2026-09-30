@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>College Tip</title>
+  <title>NAMC Tip</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome 6 for icons -->
+  <!-- FontAwesome 6 CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts: Inter -->
+  <!-- Inter Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,19 +18,30 @@
         extend: {
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            namc: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
           }
         }
       }
     }
   </script>
   <style>
-    /* Tag styles for redacted personal details and filtered tone */
+    /* Styling for AI sanitized personal details and softened tone badges */
     .redaction-tag {
       display: inline-flex;
       align-items: center;
       padding: 0.15rem 0.45rem;
       border-radius: 0.375rem;
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: -0.01em;
       margin: 0 0.15rem;
@@ -44,185 +55,167 @@
     .redaction-tag.toxic { background: #fce7f3; color: #9d174d; border-color: #fbcfe8; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900 flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased flex flex-col justify-between">
 
-  <!-- Header: Title Only, No Subtitles or Descriptions -->
+  <!-- Header: Strict Title Only, No Subtitles or Taglines -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3 shrink-0">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-100">
-          <i class="fa-solid fa-graduation-cap text-lg"></i>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-700 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-100">
+          <i class="fa-solid fa-leaf text-lg"></i>
         </div>
         <div class="flex items-center gap-2">
-          <span class="font-extrabold text-2xl text-slate-900 tracking-tight">College Tip</span>
-          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Protected
+          <span class="font-extrabold text-2xl text-slate-900 tracking-tight">NAMC Tip</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+            NAMC Exclusive
           </span>
         </div>
       </div>
       
-      <!-- Right Header Actions -->
-      <div class="flex items-center gap-3">
-        <button id="view-rules-btn" class="text-slate-600 hover:text-indigo-600 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-200">
-          <i class="fa-solid fa-shield-halved text-indigo-600"></i>
-          <span>Privacy Rules</span>
+      <!-- Right Header Actions: Privacy Rules & Admin Login -->
+      <div class="flex items-center gap-2">
+        <button id="view-rules-btn" class="text-slate-600 hover:text-emerald-700 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-200">
+          <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+          <span class="hidden sm:inline">Rules</span>
+        </button>
+        <button id="open-admin-btn" class="text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-300">
+          <i class="fa-solid fa-user-shield text-slate-700"></i>
+          <span id="admin-btn-label">Admin Access</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Top Search Bar Section: Focused & Clean, No Description -->
-  <section class="bg-slate-900 text-white py-5 px-4 border-b border-slate-800">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+  <!-- Admin Active Floating Banner -->
+  <div id="admin-bar" class="hidden bg-slate-900 text-white border-b border-slate-800 px-4 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
       <div class="flex items-center gap-2">
-        <span class="font-bold text-base text-slate-100">Search by College</span>
+        <span class="inline-flex items-center justify-center w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-bold text-emerald-400">Admin Mode Active</span>
+        <span class="text-slate-400">|</span>
+        <button id="toggle-flagged-view-btn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all border border-slate-700 flex items-center gap-1.5">
+          <i class="fa-solid fa-flag text-amber-400"></i>
+          <span>View Flagged Only</span>
+          <span id="admin-flagged-count" class="ml-1 px-1.5 py-0.2 bg-amber-500 text-slate-950 font-bold rounded-full text-[10px]">0</span>
+        </button>
       </div>
+      <div class="flex items-center gap-2">
+        <button id="open-change-password-btn" class="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-key text-[11px]"></i>
+          <span>Change Password</span>
+        </button>
+        <button id="exit-admin-btn" class="px-3 py-1 rounded bg-rose-600 hover:bg-rose-700 text-white font-medium transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-right-from-bracket text-[11px]"></i>
+          <span>Exit Admin</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-      <!-- Real-time College Search Input -->
-      <div class="relative w-full sm:max-w-md">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+  <!-- Top Real-time Search Bar (Free text search for anything: subject, batch, keyword) -->
+  <section class="bg-slate-900 text-white py-4 px-4 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div class="relative w-full">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
         <input
-          id="hero-college-search"
+          id="free-search-input"
           type="text"
-          placeholder="Type your college name..."
-          class="w-full text-xs sm:text-sm rounded-xl bg-slate-800 border border-slate-700 pl-10 pr-10 py-2.5 text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Search by subject, batch, viva tip, hostel, keyword..."
+          class="w-full text-xs sm:text-sm rounded-xl bg-slate-800 border border-slate-700 pl-10 pr-10 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
         />
-        <button id="clear-search-btn" class="absolute right-3 top-2.5 text-slate-400 hover:text-white hidden text-sm" title="Clear Search">
+        <button id="clear-search-btn" class="absolute right-3.5 top-2.5 text-slate-400 hover:text-white hidden text-sm" title="Clear Search">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
     </div>
   </section>
 
-  <!-- Main Content Grid -->
+  <!-- Main Grid: Left Tip Creator (Free-form inputs only) & Right Tip Feed -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-      <!-- LEFT: Drop a Tip Form (Title Only, No Description) -->
+      <!-- LEFT: Drop a Tip Form (Zero Dropdowns, All Free-form Text) -->
       <section class="lg:col-span-5 space-y-4">
-        
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 space-y-4">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
-              <i class="fa-solid fa-plus-circle text-indigo-600"></i> Drop a Tip
+              <i class="fa-solid fa-feather-pointed text-emerald-600"></i> Drop a Tip
             </h2>
 
-            <!-- Random Anonymous Persona Pill -->
-            <button id="author-persona-pill" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-200 transition-colors" title="Change anonymous persona">
-              <span id="persona-icon"><i class="fa-solid fa-user-ninja text-indigo-500"></i></span>
-              <span id="persona-name">Senior 🎓</span>
+            <!-- Random Anonymous Persona -->
+            <button id="persona-toggle-btn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-200 transition-colors" title="Change anonymous persona">
+              <span id="persona-icon"><i class="fa-solid fa-user-ninja text-emerald-600"></i></span>
+              <span id="persona-name">BAMS Senior 🌿</span>
               <i class="fa-solid fa-arrows-rotate text-[10px] text-slate-400"></i>
             </button>
           </div>
 
-          <!-- Independent College Input (Type Freely) -->
+          <!-- Free-form Input: Subject / Department -->
           <div class="space-y-1">
-            <label for="college-name-input" class="text-xs font-semibold text-slate-700 flex items-center justify-between">
-              <span class="flex items-center gap-1.5">
-                <i class="fa-solid fa-building-columns text-indigo-600"></i> College / University <span class="text-red-500">*</span>
-              </span>
+            <label for="subject-input" class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <i class="fa-solid fa-book-medical text-emerald-600"></i> Subject / Department / Area
             </label>
             <input
-              id="college-name-input"
+              id="subject-input"
               type="text"
-              list="college-suggestions"
-              placeholder="Enter your college name freely..."
-              class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 font-medium"
-              required
+              placeholder="e.g. Rachana Sharir, Dravyaguna, Anatomy Hall, Mess, Library"
+              class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 font-medium"
             />
-            <datalist id="college-suggestions">
-              <option value="Delhi University (DU)"></option>
-              <option value="IIT Bombay"></option>
-              <option value="IIT Delhi"></option>
-              <option value="BITS Pilani"></option>
-              <option value="VIT Vellore"></option>
-              <option value="Stanford University"></option>
-              <option value="UC Berkeley"></option>
-              <option value="Anna University"></option>
-              <option value="Jadavpur University"></option>
-            </datalist>
           </div>
 
-          <!-- Batch Year & Branch/Course -->
+          <!-- Free-form Inputs: Batch & Category / Tag -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="space-y-1">
-              <label for="batch-year-select" class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                <i class="fa-regular fa-calendar text-slate-400"></i> Batch Year <span class="text-red-500">*</span>
+              <label for="batch-input" class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                <i class="fa-solid fa-user-graduate text-slate-400"></i> Batch / Prof / Year
               </label>
-              <select
-                id="batch-year-select"
-                class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 font-medium bg-white"
-              >
-                <option value="Batch of 2029">Batch 2029</option>
-                <option value="Batch of 2028">Batch 2028</option>
-                <option value="Batch of 2027">Batch 2027</option>
-                <option value="Batch of 2026" selected>Batch 2026</option>
-                <option value="Batch of 2025">Batch 2025</option>
-                <option value="Batch of 2024">Batch 2024</option>
-                <option value="Alumni">Alumni</option>
-              </select>
+              <input
+                id="batch-input"
+                type="text"
+                placeholder="e.g. 2nd Prof, Batch 2023, Intern"
+                class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 font-medium"
+              />
             </div>
 
             <div class="space-y-1">
-              <label for="branch-input" class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                <i class="fa-solid fa-code-branch text-slate-400"></i> Branch / Dept
+              <label for="tag-input" class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                <i class="fa-solid fa-tag text-slate-400"></i> Category / Tag
               </label>
               <input
-                id="branch-input"
+                id="tag-input"
                 type="text"
-                placeholder="e.g. CS, Mech, MBA"
-                class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 font-medium"
+                placeholder="e.g. Viva Hack, Exam Key, Hostel Life"
+                class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 font-medium"
               />
             </div>
           </div>
 
-          <!-- Tip Category Selection -->
-          <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-              <i class="fa-solid fa-tags text-slate-400"></i> Category
-            </label>
-            <div id="category-pills" class="flex flex-wrap gap-1.5 text-xs">
-              <button type="button" class="category-btn active px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 font-semibold" data-category="Exam Advice">📝 Exam Advice</button>
-              <button type="button" class="category-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium" data-category="Hostel Hacks">🛏️ Hostel Hacks</button>
-              <button type="button" class="category-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium" data-category="Placement Secret">💼 Placements</button>
-              <button type="button" class="category-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium" data-category="Campus Life">☕ Campus Life</button>
-              <button type="button" class="category-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium" data-category="Professor Wisdom">👨‍🏫 Professors</button>
-            </div>
-          </div>
-
-          <!-- TITLE ONLY (No Description field) -->
+          <!-- Free-form Input: Tip Title Only (No Comment / Description box) -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
-              <label for="tip-title-input" class="text-xs font-semibold text-slate-700">Tip Title <span class="text-red-500">*</span></label>
-              <span id="char-counter" class="text-[11px] text-slate-400">0 / 250 characters</span>
+              <label for="tip-title-input" class="text-xs font-semibold text-slate-700">
+                Tip Title <span class="text-red-500">*</span>
+              </label>
+              <span id="char-counter" class="text-[11px] text-slate-400">0 / 280 characters</span>
             </div>
-            
-            <input
+            <textarea
               id="tip-title-input"
-              type="text"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-xs sm:text-sm font-medium"
-              placeholder="e.g. Always take notes in Room 204 from Prof Smith or check past papers..."
-              maxlength="250"
+              rows="3"
+              class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs sm:text-sm font-medium resize-none"
+              placeholder="Type your tip title here... (e.g. Focus on Charaka Samhita Sutrasthana ch 1-10 for first internal viva)"
+              maxlength="280"
               required
-            />
+            ></textarea>
           </div>
 
-          <!-- Engine Setting & AI status -->
-          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-            <div class="flex items-center gap-3">
-              <span class="font-medium text-slate-600">Shield:</span>
-              <label class="flex items-center gap-1 cursor-pointer">
-                <input type="radio" name="moderation-engine" value="gemini" checked class="accent-indigo-600">
-                <span class="font-semibold text-indigo-900"><i class="fa-solid fa-wand-magic-sparkles text-indigo-500 text-[11px]"></i> Gemini AI</span>
-              </label>
-              <label class="flex items-center gap-1 cursor-pointer">
-                <input type="radio" name="moderation-engine" value="regex" class="accent-indigo-600">
-                <span class="text-slate-600">Regex</span>
-              </label>
+          <!-- AI Shield Indicator -->
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200 text-xs">
+            <div class="flex items-center gap-2 text-emerald-900 font-medium">
+              <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i>
+              <span>Auto AI Shield (Names & Harsh Words Masked)</span>
             </div>
-            
-            <span id="ai-loading-indicator" class="hidden items-center gap-1.5 text-indigo-600 font-semibold text-xs">
-              <i class="fa-solid fa-circle-notch fa-spin text-xs"></i> AI checking...
+            <span id="ai-loading-indicator" class="hidden items-center gap-1.5 text-emerald-700 font-semibold text-xs">
+              <i class="fa-solid fa-circle-notch fa-spin text-xs"></i> Checking...
             </span>
           </div>
 
@@ -232,14 +225,14 @@
               <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
                 <i class="fa-solid fa-shield-check text-emerald-600"></i> Sanitized Output
               </h3>
-              <span id="preview-badge-status" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200">
-                0 cleaned
+              <span id="preview-badge-status" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                0 masked
               </span>
             </div>
 
-            <div class="p-3.5 rounded-xl border border-indigo-200 bg-indigo-50/40 space-y-2">
+            <div class="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
               <div id="preview-sanitized-text" class="text-xs sm:text-sm font-semibold text-slate-900 leading-snug"></div>
-              <div id="preview-chips-list" class="flex flex-wrap gap-1 pt-1.5 border-t border-indigo-100 text-[11px]"></div>
+              <div id="preview-chips-list" class="flex flex-wrap gap-1 pt-1.5 border-t border-emerald-100 text-[11px]"></div>
             </div>
           </div>
 
@@ -248,10 +241,10 @@
             <div class="font-bold flex items-center gap-1.5">
               <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Harsh or targeted words detected
             </div>
-            <p>Harsh or abusive terms have been softened into polite phrasing so your tip remains constructive.</p>
+            <p>Toxic phrases have been softened into polite constructive phrasing so the tip remains helpful.</p>
           </div>
 
-          <!-- Action Buttons -->
+          <!-- Form Actions -->
           <div class="flex items-center gap-2 pt-1">
             <button
               id="preview-btn"
@@ -264,7 +257,7 @@
             <button
               id="submit-tip-btn"
               type="button"
-              class="flex-1 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-indigo-200 transition-all disabled:opacity-50"
+              class="flex-1 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-200 transition-all disabled:opacity-50"
             >
               <i class="fa-solid fa-check"></i> Post Tip
             </button>
@@ -273,86 +266,216 @@
           <!-- Toast Banner -->
           <div id="toast-banner" class="hidden p-3 rounded-xl text-xs flex items-center gap-2"></div>
         </div>
-
       </section>
 
-      <!-- RIGHT: College Feed with Filters -->
+      <!-- RIGHT: NAMC Community Feed (No dropdown filters) -->
       <section class="lg:col-span-7 space-y-4">
-        
-        <!-- Filter Bar -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-              <i class="fa-solid fa-filter text-indigo-600"></i> Filters
-            </span>
-            <button id="reset-all-filters-btn" class="text-[11px] font-semibold text-slate-400 hover:text-indigo-600 transition-colors">
-              Reset Filters
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <!-- College Filter -->
-            <div>
-              <label class="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">College</label>
-              <select id="feed-college-filter" class="w-full text-xs rounded-xl border border-slate-200 px-2.5 py-2 text-slate-700 bg-slate-50 focus:outline-hidden focus:ring-1 focus:ring-indigo-500">
-                <option value="ALL">All Colleges</option>
-              </select>
-            </div>
-
-            <!-- Batch Filter -->
-            <div>
-              <label class="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Batch</label>
-              <select id="feed-batch-filter" class="w-full text-xs rounded-xl border border-slate-200 px-2.5 py-2 text-slate-700 bg-slate-50 focus:outline-hidden focus:ring-1 focus:ring-indigo-500">
-                <option value="ALL">All Batches</option>
-                <option value="Batch of 2029">Batch 2029</option>
-                <option value="Batch of 2028">Batch 2028</option>
-                <option value="Batch of 2027">Batch 2027</option>
-                <option value="Batch of 2026">Batch 2026</option>
-                <option value="Batch of 2025">Batch 2025</option>
-                <option value="Batch of 2024">Batch 2024</option>
-                <option value="Alumni">Alumni</option>
-              </select>
-            </div>
-
-            <!-- Category Filter -->
-            <div>
-              <label class="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Category</label>
-              <select id="feed-category-filter" class="w-full text-xs rounded-xl border border-slate-200 px-2.5 py-2 text-slate-700 bg-slate-50 focus:outline-hidden focus:ring-1 focus:ring-indigo-500">
-                <option value="ALL">All Categories</option>
-                <option value="Exam Advice">Exam Advice</option>
-                <option value="Hostel Hacks">Hostel Hacks</option>
-                <option value="Placement Secret">Placement Secret</option>
-                <option value="Campus Life">Campus Life</option>
-                <option value="Professor Wisdom">Professor Wisdom</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feed Counter Header -->
+        <!-- Feed Top Counter -->
         <div class="flex items-center justify-between px-1">
           <div class="flex items-center gap-2">
-            <span class="font-bold text-slate-900 text-sm">Tips</span>
+            <span class="font-bold text-slate-900 text-sm">NAMC Tips</span>
             <span id="tips-count-badge" class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-xs font-semibold">0</span>
           </div>
+          <span class="text-[11px] text-slate-500 font-medium">Free-form search active</span>
         </div>
 
-        <!-- Tips Feed Container -->
+        <!-- Feed List Container -->
         <div id="tips-feed-container" class="space-y-3">
-          <!-- Rendered dynamically -->
+          <!-- Populated by JavaScript -->
         </div>
-
       </section>
 
     </div>
   </main>
 
-  <!-- Community Rules Modal -->
-  <div id="guidelines-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+  <!-- MODAL: Community Report Modal -->
+  <div id="report-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
       <div class="flex items-center justify-between pb-2 border-b border-slate-100">
         <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-indigo-600"></i> College Tip Rules
+          <i class="fa-solid fa-flag text-amber-500"></i> Report Tip
+        </h3>
+        <button id="close-report-modal-btn" class="text-slate-400 hover:text-slate-600 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Flag this tip for admin review if it violates privacy, targets an individual, or is toxic.
+      </p>
+
+      <div class="space-y-2 text-xs">
+        <label class="block font-semibold text-slate-700">Reason for Report</label>
+        <div class="space-y-1.5" id="report-reasons-group">
+          <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="report-reason" value="Personal Information / Doxxing" checked class="accent-emerald-600">
+            <span>Contains Personal Name / Phone / Roll Number</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="report-reason" value="Harassment or Bullying" class="accent-emerald-600">
+            <span>Harassment, Insult, or Targeted Toxicity</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="report-reason" value="False Exam / Subject Information" class="accent-emerald-600">
+            <span>Misleading or False Campus Info</span>
+          </label>
+          <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+            <input type="radio" name="report-reason" value="Spam or Inappropriate" class="accent-emerald-600">
+            <span>Spam / Inappropriate Content</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label for="report-note-input" class="text-xs font-semibold text-slate-700">Optional Note</label>
+        <input
+          id="report-note-input"
+          type="text"
+          placeholder="Brief details for admin..."
+          class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+        />
+      </div>
+
+      <div class="flex items-center gap-2 pt-2">
+        <button id="cancel-report-btn" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
+          Cancel
+        </button>
+        <button id="submit-report-btn" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-md shadow-amber-200 transition-all">
+          Submit Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Admin Login -->
+  <div id="admin-login-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-lock text-emerald-600"></i> Admin Access
+        </h3>
+        <button id="close-admin-login-btn" class="text-slate-400 hover:text-slate-600 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <label for="admin-passcode-input" class="text-xs font-semibold text-slate-700">Enter Admin Passcode</label>
+        <input
+          id="admin-passcode-input"
+          type="password"
+          placeholder="Enter passcode..."
+          class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+        />
+        <p class="text-[11px] text-slate-500">Default passcode is <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-emerald-700 font-bold">admin123</code></p>
+      </div>
+
+      <div id="admin-login-error" class="hidden p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+        Incorrect passcode. Please try again.
+      </div>
+
+      <div class="flex items-center gap-2 pt-2">
+        <button id="cancel-admin-login-btn" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
+          Cancel
+        </button>
+        <button id="submit-admin-login-btn" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-md shadow-emerald-200 transition-all">
+          Authorize
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Change Admin Password -->
+  <div id="change-password-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-key text-indigo-600"></i> Change Password
+        </h3>
+        <button id="close-change-pwd-btn" class="text-slate-400 hover:text-slate-600 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="space-y-1">
+          <label for="current-pwd-input" class="text-xs font-semibold text-slate-700">Current Password</label>
+          <input
+            id="current-pwd-input"
+            type="password"
+            placeholder="Current password"
+            class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label for="new-pwd-input" class="text-xs font-semibold text-slate-700">New Password</label>
+          <input
+            id="new-pwd-input"
+            type="password"
+            placeholder="New password (min 6 chars)"
+            class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label for="confirm-pwd-input" class="text-xs font-semibold text-slate-700">Confirm New Password</label>
+          <input
+            id="confirm-pwd-input"
+            type="password"
+            placeholder="Re-enter new password"
+            class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+          />
+        </div>
+      </div>
+
+      <div id="change-pwd-msg" class="hidden p-2 rounded-lg text-xs"></div>
+
+      <div class="flex items-center gap-2 pt-2">
+        <button id="cancel-change-pwd-btn" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
+          Cancel
+        </button>
+        <button id="save-new-pwd-btn" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-200 transition-all">
+          Save Password
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Delete Tip Confirmation -->
+  <div id="delete-confirm-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center gap-3 text-rose-600">
+        <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
+          <i class="fa-solid fa-trash-can text-lg"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Delete Tip</h3>
+          <p class="text-xs text-slate-500">Admin removal action</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Are you sure you want to permanently delete this tip from the NAMC board? This action cannot be undone.
+      </p>
+
+      <div class="flex items-center gap-2 pt-2">
+        <button id="cancel-delete-btn" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
+          Cancel
+        </button>
+        <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-md shadow-rose-200 transition-all">
+          Confirm Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Privacy & Conduct Rules -->
+  <div id="guidelines-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-emerald-600"></i> NAMC Tip Rules
         </h3>
         <button id="close-guidelines-btn" class="text-slate-400 hover:text-slate-600 text-lg">
           <i class="fa-solid fa-xmark"></i>
@@ -360,145 +483,137 @@
       </div>
 
       <div class="text-xs text-slate-600 space-y-3 leading-relaxed">
-        <div class="p-3 bg-rose-50 rounded-xl border border-rose-200 text-rose-900 space-y-1">
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-950 space-y-1">
           <div class="font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-hand text-rose-600"></i> Harsh Words Restricted
+            <i class="fa-solid fa-graduation-cap text-emerald-700"></i> Strictly for NAMC Students
           </div>
-          <p class="text-[11px] text-rose-800">
-            Abuse, harassment, and toxic insults are automatically softened to protect community integrity.
+          <p class="text-[11px] text-emerald-800">
+            Share genuine advice on BAMS exams, viva keys, clinical postings, and campus life at Naiminath.
           </p>
         </div>
 
-        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 space-y-1">
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-950 space-y-1">
           <div class="font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-user-shield text-amber-600"></i> Personal Info Censored
+            <i class="fa-solid fa-user-shield text-amber-700"></i> Automatic PII Redaction
           </div>
-          <div class="space-y-1 text-[11px] text-amber-800">
-            <p>• Names &rarr; <span class="redaction-tag name">[Name Redacted]</span></p>
-            <p>• Roll numbers &rarr; <span class="redaction-tag roll">[Roll No Redacted]</span></p>
-            <p>• Phone numbers & emails &rarr; <span class="redaction-tag contact">[Contact Redacted]</span></p>
-          </div>
+          <p class="text-[11px] text-amber-800">
+            Names, personal mobile numbers, roll numbers, and room numbers are automatically masked as red badges.
+          </p>
         </div>
 
-        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 space-y-1">
+        <div class="p-3 bg-rose-50 rounded-xl border border-rose-200 text-rose-950 space-y-1">
           <div class="font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-circle-check text-emerald-600"></i> Preserved
+            <i class="fa-solid fa-hand text-rose-700"></i> Zero Harassment Policy
           </div>
-          <p class="text-[11px] text-emerald-800">
-            College Name and Batch Year remain completely visible so students can easily find relevant tips.
+          <p class="text-[11px] text-rose-800">
+            Insults and abusive terms are softened automatically. Defamatory or harmful tips can be reported and deleted by admins.
           </p>
         </div>
       </div>
 
-      <button id="ok-guidelines-btn" class="w-full py-2.5 rounded-xl bg-indigo-600 text-white font-medium text-xs hover:bg-indigo-700 transition-colors">
-        Close
+      <button id="ok-guidelines-btn" class="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 transition-colors">
+        Understood
       </button>
     </div>
   </div>
 
-  <!-- Footer: Title Only, No Subtitles -->
+  <!-- Footer: Strict Title Only -->
   <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
-      <span class="font-bold text-slate-800">College Tip</span>
-      <span>Gemini 3 Flash</span>
+      <span class="font-bold text-slate-800 flex items-center gap-1.5">
+        <i class="fa-solid fa-leaf text-emerald-600"></i> NAMC Tip
+      </span>
+      <span>Naiminath Ayurvedic Medical College</span>
     </div>
   </footer>
 
   <script>
-    /* Anonymous Personas */
-    const CAMPUS_PERSONAS = [
-      { name: "Senior 🎓", icon: "fa-solid fa-user-graduate", bg: "bg-indigo-100 text-indigo-700" },
-      { name: "Hostel Mate 💡", icon: "fa-solid fa-lightbulb", bg: "bg-amber-100 text-amber-700" },
-      { name: "Night Owl 🦉", icon: "fa-solid fa-laptop-code", bg: "bg-violet-100 text-violet-700" },
-      { name: "Library Reader 🦊", icon: "fa-solid fa-book-open-reader", bg: "bg-rose-100 text-rose-700" },
-      { name: "Alum 💼", icon: "fa-solid fa-briefcase", bg: "bg-sky-100 text-sky-700" }
+    /* Anonymous NAMC Campus Personas */
+    const NAMC_PERSONAS = [
+      { name: "BAMS Senior 🌿", icon: "fa-solid fa-leaf", bg: "bg-emerald-100 text-emerald-700" },
+      { name: "Clinical Intern 🩺", icon: "fa-solid fa-stethoscope", bg: "bg-teal-100 text-teal-700" },
+      { name: "Herbology Buff 🍃", icon: "fa-solid fa-mortar-pestle", bg: "bg-amber-100 text-amber-700" },
+      { name: "Night Owl Reader 🦉", icon: "fa-solid fa-book-open", bg: "bg-indigo-100 text-indigo-700" },
+      { name: "Hostel Senior 🛏️", icon: "fa-solid fa-lightbulb", bg: "bg-violet-100 text-violet-700" }
     ];
 
-    let currentPersona = CAMPUS_PERSONAS[0];
-    let selectedCategory = "Exam Advice";
+    let currentPersona = NAMC_PERSONAS[0];
 
-    /* Seed Tips (Title Only Format) */
-    const SEED_TIPS = [
+    /* Default initial NAMC tips (Realistic, Ayurvedic & Campus-focused) */
+    const SEED_NAMC_TIPS = [
       {
-        id: "tip-1",
-        college: "Delhi University (DU)",
-        batch: "Batch of 2025",
-        branch: "B.Com",
-        category: "Exam Advice",
-        author: "Senior 🎓",
-        avatar: CAMPUS_PERSONAS[0],
-        time: "10 mins ago",
-        title: "Study previous 5 years past papers from [Name Redacted] notes to clear sem 4 law without panicking.",
-        sanitized: "Study previous 5 years past papers from [Name Redacted] notes to clear sem 4 law without panicking.",
-        redactions: ["Name"],
+        id: "namc-101",
+        subject: "Dravyaguna",
+        batch: "2nd Prof",
+        tag: "Viva Hack",
+        author: "BAMS Senior 🌿",
+        avatar: NAMC_PERSONAS[0],
+        time: "15 mins ago",
+        title: "Memorize Latin names along with their Rasa, Guna, Veerya, and Vipaka using tabular comparison charts before external viva.",
+        sanitized: "Memorize Latin names along with their Rasa, Guna, Veerya, and Vipaka using tabular comparison charts before external viva.",
+        redactions: [],
         harshnessDetected: false,
-        upvotes: 24,
-        isUpvoted: false
+        upvotes: 28,
+        isUpvoted: false,
+        reports: []
       },
       {
-        id: "tip-2",
-        college: "IIT Bombay",
-        batch: "Batch of 2026",
-        branch: "CS",
-        category: "Hostel Hacks",
-        author: "Hostel Mate 💡",
-        avatar: CAMPUS_PERSONAS[1],
+        id: "namc-102",
+        subject: "Rachana Sharir",
+        batch: "1st Prof",
+        tag: "Dissection Hall",
+        author: "Herbology Buff 🍃",
+        avatar: NAMC_PERSONAS[2],
         time: "1 hour ago",
-        title: "Hostel 16 third floor wing has the lowest latency ethernet connection on entire campus.",
-        sanitized: "Hostel 16 third floor wing has the lowest latency ethernet connection on entire campus.",
+        title: "Always review Marma points and their dimensions before entering anatomy hall demonstrations.",
+        sanitized: "Always review Marma points and their dimensions before entering anatomy hall demonstrations.",
         redactions: [],
         harshnessDetected: false,
-        upvotes: 38,
-        isUpvoted: true
+        upvotes: 34,
+        isUpvoted: true,
+        reports: []
       },
       {
-        id: "tip-3",
-        college: "BITS Pilani",
-        batch: "Batch of 2024",
-        branch: "Electronics",
-        category: "Placement Secret",
-        author: "Alum 💼",
-        avatar: CAMPUS_PERSONAS[4],
+        id: "namc-103",
+        subject: "NAMC Central Library",
+        batch: "Intern Batch",
+        tag: "Campus Secret",
+        author: "Night Owl Reader 🦉",
+        avatar: NAMC_PERSONAS[3],
         time: "3 hours ago",
-        title: "Upload all Verilog lab designs to your public GitHub repo before PS-2 shortlists are drafted.",
-        sanitized: "Upload all Verilog lab designs to your public GitHub repo before PS-2 shortlists are drafted.",
+        title: "Reference section on 2nd floor has rare commentary prints of Sushruta Samhita with diagrammatic surgical instruments.",
+        sanitized: "Reference section on 2nd floor has rare commentary prints of Sushruta Samhita with diagrammatic surgical instruments.",
         redactions: [],
         harshnessDetected: false,
-        upvotes: 45,
-        isUpvoted: false
-      },
-      {
-        id: "tip-4",
-        college: "Stanford University",
-        batch: "Batch of 2027",
-        branch: "CS",
-        category: "Campus Life",
-        author: "Night Owl 🦉",
-        avatar: CAMPUS_PERSONAS[2],
-        time: "5 hours ago",
-        title: "Gates building basement dispenses free snacks and coffee during midterm exam week.",
-        sanitized: "Gates building basement dispenses free snacks and coffee during midterm exam week.",
-        redactions: [],
-        harshnessDetected: false,
-        upvotes: 62,
-        isUpvoted: false
+        upvotes: 49,
+        isUpvoted: false,
+        reports: []
       }
     ];
 
+    /* Storage Keys */
+    const STORAGE_KEY_TIPS = "namc_tips_feed_v1";
+    const STORAGE_KEY_PASS = "namc_admin_password_v1";
+    const DEFAULT_PASS = "admin123";
+
     let tips = [];
     try {
-      const stored = localStorage.getItem("college_tips_feed_title_v2");
-      tips = stored ? JSON.parse(stored) : [...SEED_TIPS];
+      const stored = localStorage.getItem(STORAGE_KEY_TIPS);
+      tips = stored ? JSON.parse(stored) : [...SEED_NAMC_TIPS];
     } catch (e) {
-      tips = [...SEED_TIPS];
+      tips = [...SEED_NAMC_TIPS];
     }
 
+    let isAdminLoggedIn = false;
+    let showFlaggedOnly = false;
+    let pendingReportTipId = null;
+    let pendingDeleteTipId = null;
     let cachedSanitization = null;
 
-    /* Elements */
-    const collegeInput = document.getElementById('college-name-input');
-    const batchSelect = document.getElementById('batch-year-select');
-    const branchInput = document.getElementById('branch-input');
+    /* DOM Elements */
+    const subjectInput = document.getElementById('subject-input');
+    const batchInput = document.getElementById('batch-input');
+    const tagInput = document.getElementById('tag-input');
     const tipTitleInput = document.getElementById('tip-title-input');
     const charCounter = document.getElementById('char-counter');
     const previewBtn = document.getElementById('preview-btn');
@@ -510,47 +625,89 @@
     const harshWarningBanner = document.getElementById('harsh-warning-banner');
     const aiLoadingIndicator = document.getElementById('ai-loading-indicator');
     const toastBanner = document.getElementById('toast-banner');
-    const heroCollegeSearch = document.getElementById('hero-college-search');
+    const freeSearchInput = document.getElementById('free-search-input');
     const clearSearchBtn = document.getElementById('clear-search-btn');
-    const feedCollegeFilter = document.getElementById('feed-college-filter');
-    const feedBatchFilter = document.getElementById('feed-batch-filter');
-    const feedCategoryFilter = document.getElementById('feed-category-filter');
-    const resetAllFiltersBtn = document.getElementById('reset-all-filters-btn');
     const tipsFeedContainer = document.getElementById('tips-feed-container');
     const tipsCountBadge = document.getElementById('tips-count-badge');
-    const authorPersonaPill = document.getElementById('author-persona-pill');
+    const personaToggleBtn = document.getElementById('persona-toggle-btn');
     const personaIcon = document.getElementById('persona-icon');
     const personaName = document.getElementById('persona-name');
-    const categoryButtons = document.querySelectorAll('.category-btn');
+
+    /* Admin Elements */
+    const openAdminBtn = document.getElementById('open-admin-btn');
+    const adminBtnLabel = document.getElementById('admin-btn-label');
+    const adminBar = document.getElementById('admin-bar');
+    const adminFlaggedCount = document.getElementById('admin-flagged-count');
+    const toggleFlaggedViewBtn = document.getElementById('toggle-flagged-view-btn');
+    const openChangePasswordBtn = document.getElementById('open-change-password-btn');
+    const exitAdminBtn = document.getElementById('exit-admin-btn');
+    const adminLoginModal = document.getElementById('admin-login-modal');
+    const closeAdminLoginBtn = document.getElementById('close-admin-login-btn');
+    const cancelAdminLoginBtn = document.getElementById('cancel-admin-login-btn');
+    const submitAdminLoginBtn = document.getElementById('submit-admin-login-btn');
+    const adminPasscodeInput = document.getElementById('admin-passcode-input');
+    const adminLoginError = document.getElementById('admin-login-error');
+
+    /* Change Password Modal Elements */
+    const changePasswordModal = document.getElementById('change-password-modal');
+    const closeChangePwdBtn = document.getElementById('close-change-pwd-btn');
+    const cancelChangePwdBtn = document.getElementById('cancel-change-pwd-btn');
+    const saveNewPwdBtn = document.getElementById('save-new-pwd-btn');
+    const currentPwdInput = document.getElementById('current-pwd-input');
+    const newPwdInput = document.getElementById('new-pwd-input');
+    const confirmPwdInput = document.getElementById('confirm-pwd-input');
+    const changePwdMsg = document.getElementById('change-pwd-msg');
+
+    /* Delete Confirm Modal Elements */
+    const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
+    /* Report Modal Elements */
+    const reportModal = document.getElementById('report-modal');
+    const closeReportModalBtn = document.getElementById('close-report-modal-btn');
+    const cancelReportBtn = document.getElementById('cancel-report-btn');
+    const submitReportBtn = document.getElementById('submit-report-btn');
+    const reportNoteInput = document.getElementById('report-note-input');
+
+    /* Rules Modal Elements */
     const guidelinesModal = document.getElementById('guidelines-modal');
     const viewRulesBtn = document.getElementById('view-rules-btn');
     const closeGuidelinesBtn = document.getElementById('close-guidelines-btn');
     const okGuidelinesBtn = document.getElementById('ok-guidelines-btn');
 
+    function getAdminPassword() {
+      return localStorage.getItem(STORAGE_KEY_PASS) || DEFAULT_PASS;
+    }
+
+    function saveAdminPassword(newPass) {
+      localStorage.setItem(STORAGE_KEY_PASS, newPass);
+    }
+
     function persistTips() {
       try {
-        localStorage.setItem("college_tips_feed_title_v2", JSON.stringify(tips));
+        localStorage.setItem(STORAGE_KEY_TIPS, JSON.stringify(tips));
       } catch (e) {
         console.warn("Storage quota exceeded", e);
       }
     }
 
     function randomizePersona() {
-      const idx = Math.floor(Math.random() * CAMPUS_PERSONAS.length);
-      currentPersona = CAMPUS_PERSONAS[idx];
+      const idx = Math.floor(Math.random() * NAMC_PERSONAS.length);
+      currentPersona = NAMC_PERSONAS[idx];
       personaName.textContent = currentPersona.name;
-      personaIcon.innerHTML = `<i class="${currentPersona.icon} text-indigo-500"></i>`;
+      personaIcon.innerHTML = `<i class="${currentPersona.icon} text-emerald-600"></i>`;
     }
 
-    /* Client-side Regex Sanitizer */
-    function localFallbackSanitizer(text, collegeName) {
+    /* Local Regex Fallback Scrubber */
+    function localFallbackSanitizer(text) {
       let sanitized = text;
       let redactions = [];
       let harshFound = false;
 
       const harshPatterns = [
-        /\b(idiot|moron|stupid|asshole|bastard|bitch|worthless|scumbag|trash|loser|dumbass|fuck|shit|crap)\b/gi,
-        /\b(kill yourself|hate everyone|burn this place|scam college)\b/gi
+        /\b(idiot|moron|stupid|asshole|bastard|bitch|worthless|scumbag|trash|loser|dumbass|fuck|shit|crap|kamina|saale|chutiya)\b/gi,
+        /\b(kill yourself|hate everyone|burn this place|scam college|fake college)\b/gi
       ];
 
       harshPatterns.forEach(pattern => {
@@ -572,13 +729,19 @@
         redactions.push('Contact');
       }
 
-      const rollRegex = /\b(Roll\s*(No|Number)?|Reg\s*(No|Number)?|ID)?\s*([0-9]{2,4}[A-Za-z]{2,5}[0-9]{3,5}|[0-9]{7,10})\b/gi;
+      const rollRegex = /\b(Roll\s*(No|Number)?|Reg\s*(No|Number)?|ID)?\s*([0-9]{2,4}[A-Za-z]{2,5}[0-9]{3,5}|[0-9]{6,12})\b/gi;
       if (rollRegex.test(sanitized)) {
         sanitized = sanitized.replace(rollRegex, '[Roll No Redacted]');
         redactions.push('Roll Number');
       }
 
-      const nameRegex = /\b(Prof\.|Professor|Dr\.|Mr\.|Ms\.|Mrs\.|ask for|call|from)\s+([A-Z][a-z]+(\s+[A-Z][a-z]+)?)\b/gi;
+      const roomRegex = /\b(Room\s*(No|Number)?\s*[0-9]{1,4}[A-Za-z]?)\b/gi;
+      if (roomRegex.test(sanitized)) {
+        sanitized = sanitized.replace(roomRegex, '[Room Redacted]');
+        redactions.push('Room');
+      }
+
+      const nameRegex = /\b(Prof\.|Professor|Dr\.|Vaidya|Mr\.|Ms\.|Mrs\.|meet|contact|call|from)\s+([A-Z][a-z]+(\s+[A-Z][a-z]+)?)\b/gi;
       if (nameRegex.test(sanitized)) {
         sanitized = sanitized.replace(nameRegex, '$1 [Name Redacted]');
         redactions.push('Name');
@@ -590,31 +753,31 @@
         sanitizedText: sanitized,
         redactedItems: [...new Set(redactions)],
         harshnessDetected: harshFound,
-        engine: 'Regex'
+        engine: 'Regex Scrubber'
       };
     }
 
     /* Gemini AI Sanitizer */
-    async function sanitizeWithGemini(rawText, collegeName, batchName) {
+    async function sanitizeWithGemini(rawText) {
       const apiKey = "";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-      const systemInstruction = `You are College Tip's AI Privacy Guard & Anti-Harassment filter.
+      const systemInstruction = `You are the AI Privacy Guard for "NAMC Tip" (Naiminath Ayurvedic Medical College).
 1. REDACTION:
-   - Replace any individual person names with "[Name Redacted]"
-   - Replace roll numbers, IDs, and reg codes with "[Roll No Redacted]"
-   - Replace phone numbers and emails with "[Contact Redacted]"
-   - Replace room numbers with "[Room Redacted]"
+   - Redact any specific person names, doctor names, or student names with "[Name Redacted]".
+   - Redact phone numbers and emails with "[Contact Redacted]".
+   - Redact roll numbers or university IDs with "[Roll No Redacted]".
+   - Redact hostel room numbers with "[Room Redacted]".
 
 2. HARSH WORDS & ANTI-HARASSMENT:
-   - Identify abusive words, toxic curses, or personal defamation.
-   - If found, set harshnessDetected to true and soften the phrase politely.
+   - Identify abusive words, toxic insults, or defamation.
+   - If found, set harshnessDetected to true and soften the phrase into constructive, polite phrasing.
 
-3. PRESERVE:
-   - DO NOT redact the college name "${collegeName || ''}".
-   - DO NOT redact batch years, building or library names.
+3. PRESERVATION:
+   - PRESERVE Ayurveda subject names (e.g. Rachana Sharir, Kriya Sharir, Dravyaguna, Rasa Shastra, Agada Tantra, Kayachikitsa, Shalya Tantra, etc.).
+   - PRESERVE college initials (NAMC) and campus facilities (library, anatomy hall, mess, hospital).
 
-Return ONLY JSON:
+Return JSON only:
 {
   "sanitizedText": string,
   "redactedItems": string[],
@@ -622,7 +785,7 @@ Return ONLY JSON:
 }`;
 
       const payload = {
-        contents: [{ role: "user", parts: [{ text: `Tip Title for ${collegeName || 'College'}:\n"${rawText}"` }] }],
+        contents: [{ role: "user", parts: [{ text: `Tip Title for NAMC College:\n"${rawText}"` }] }],
         systemInstruction: { parts: [{ text: systemInstruction }] },
         generationConfig: {
           responseMimeType: "application/json",
@@ -658,10 +821,9 @@ Return ONLY JSON:
             engine: 'Gemini AI'
           };
         }
-        throw new Error("No candidate received");
+        throw new Error("Empty candidate received");
       } catch (err) {
-        console.warn("Fallback to regex:", err);
-        return localFallbackSanitizer(rawText, collegeName);
+        return localFallbackSanitizer(rawText);
       }
     }
 
@@ -676,41 +838,38 @@ Return ONLY JSON:
       return safe;
     }
 
-    function updateCollegeOptions() {
-      const distinctColleges = [...new Set(tips.map(t => t.college.trim()))].filter(Boolean).sort();
-      const currentSelected = feedCollegeFilter.value;
-
-      let dropdownHtml = `<option value="ALL">All Colleges</option>`;
-      distinctColleges.forEach(col => {
-        dropdownHtml += `<option value="${col}" ${currentSelected === col ? 'selected' : ''}>${col}</option>`;
-      });
-      feedCollegeFilter.innerHTML = dropdownHtml;
-    }
-
     function renderFeed() {
-      const heroQuery = heroCollegeSearch.value.toLowerCase().trim();
-      const collegeFilterVal = feedCollegeFilter.value;
-      const batchFilterVal = feedBatchFilter.value;
-      const categoryFilterVal = feedCategoryFilter.value;
+      const query = freeSearchInput.value.toLowerCase().trim();
+      const flaggedCount = tips.filter(t => t.reports && t.reports.length > 0).length;
+      adminFlaggedCount.textContent = flaggedCount;
 
-      const filtered = tips.filter(tip => {
-        const matchesCollegeFilter = (collegeFilterVal === 'ALL') || (tip.college.toLowerCase() === collegeFilterVal.toLowerCase());
-        const matchesBatch = (batchFilterVal === 'ALL') || (tip.batch === batchFilterVal);
-        const matchesCategory = (categoryFilterVal === 'ALL') || (tip.category === categoryFilterVal);
+      let filtered = tips.filter(tip => {
+        if (showFlaggedOnly && (!tip.reports || tip.reports.length === 0)) {
+          return false;
+        }
 
-        const combinedText = `${tip.college} ${tip.batch} ${tip.branch} ${tip.category} ${tip.sanitized} ${tip.title}`.toLowerCase();
-        const matchesSearch = !heroQuery || combinedText.includes(heroQuery);
+        if (!query) return true;
 
-        return matchesCollegeFilter && matchesBatch && matchesCategory && matchesSearch;
+        const combinedText = `
+          ${tip.subject || ''} 
+          ${tip.batch || ''} 
+          ${tip.tag || ''} 
+          ${tip.title || ''} 
+          ${tip.sanitized || ''}
+          ${tip.author || ''}
+        `.toLowerCase();
+
+        return combinedText.includes(query);
       });
 
       tipsCountBadge.textContent = filtered.length;
 
       if (filtered.length === 0) {
         tipsFeedContainer.innerHTML = `
-          <div class="text-center py-10 px-4 border-2 border-dashed border-slate-200 rounded-2xl bg-white text-slate-400 space-y-2">
-            <i class="fa-solid fa-graduation-cap text-2xl text-indigo-300"></i>
-            <p class="font-bold text-slate-700 text-sm">No tips found for this college or filter</p>
+          <div class="text-center py-12 px-4 border-2 border-dashed border-slate-200 rounded-2xl bg-white text-slate-400 space-y-2">
+            <i class="fa-solid fa-leaf text-2xl text-emerald-300"></i>
+            <p class="font-bold text-slate-700 text-sm">No tips match your search</p>
+            <p class="text-xs text-slate-400">Feel free to drop a tip for NAMC using the form on the left.</p>
           </div>
         `;
         return;
@@ -719,58 +878,99 @@ Return ONLY JSON:
       tipsFeedContainer.innerHTML = filtered.map(tip => {
         const formattedTitle = formatRedactedPills(tip.sanitized || tip.title);
         const hasRedactions = tip.redactions && tip.redactions.length > 0;
+        const reportCount = tip.reports ? tip.reports.length : 0;
+        const isFlagged = reportCount > 0;
 
         return `
-          <article class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-all space-y-3">
+          <article class="bg-white rounded-2xl p-4 sm:p-5 border ${isFlagged ? 'border-amber-300 bg-amber-50/20' : 'border-slate-200'} shadow-xs hover:border-slate-300 transition-all space-y-3">
             
+            <!-- Card Header: Free text Subject, Batch, Tag badges -->
             <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-2.5">
               <div class="space-y-1">
                 <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="font-extrabold text-xs sm:text-sm text-slate-900 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-lg text-indigo-900 flex items-center gap-1">
-                    <i class="fa-solid fa-building-columns text-indigo-600"></i>
-                    ${tip.college}
-                  </span>
-                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                    ${tip.batch}
-                  </span>
-                  ${tip.branch ? `
-                    <span class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      ${tip.branch}
+                  ${tip.subject ? `
+                    <span class="font-bold text-xs text-emerald-900 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
+                      <i class="fa-solid fa-book-medical text-emerald-600"></i>
+                      ${tip.subject}
+                    </span>
+                  ` : ''}
+
+                  ${tip.batch ? `
+                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                      ${tip.batch}
+                    </span>
+                  ` : ''}
+
+                  ${tip.tag ? `
+                    <span class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
+                      #${tip.tag}
+                    </span>
+                  ` : ''}
+
+                  ${isFlagged ? `
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
+                      <i class="fa-solid fa-flag text-amber-600"></i> Reported (${reportCount})
                     </span>
                   ` : ''}
                 </div>
 
                 <div class="flex items-center gap-2 text-[11px] text-slate-500 pt-0.5">
-                  <span class="font-semibold text-indigo-600">${tip.category}</span>
-                  <span>•</span>
                   <span>${tip.time}</span>
+                  <span>•</span>
+                  <span>NAMC Campus</span>
                 </div>
               </div>
 
               <!-- Persona Avatar -->
               <div class="flex items-center gap-2 shrink-0">
-                <div class="text-[11px] font-bold text-slate-700">${tip.author}</div>
+                <div class="text-[11px] font-bold text-slate-700 hidden sm:block">${tip.author}</div>
                 <div class="w-7 h-7 rounded-full ${tip.avatar.bg} flex items-center justify-center text-xs">
                   <i class="${tip.avatar.icon}"></i>
                 </div>
               </div>
             </div>
 
-            <!-- Tip Title Display -->
+            <!-- Tip Title (Free-form) -->
             <div class="text-sm font-semibold text-slate-900 leading-snug break-words">
               ${formattedTitle}
             </div>
 
-            <!-- Redactions & Upvote -->
+            <!-- Card Bottom Bar: Redaction status, Upvote, Report, and Admin Delete button -->
             <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
               <div class="flex items-center gap-1 text-[11px] flex-wrap">
-                ${hasRedactions ? tip.redactions.map(r => `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium text-[10px]">${r}</span>`).join('') : '<span class="text-emerald-700 font-medium text-[10px]"><i class="fa-solid fa-check text-[9px] mr-1"></i>Clean</span>'}
+                ${hasRedactions 
+                  ? tip.redactions.map(r => `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium text-[10px]">${r}</span>`).join('') 
+                  : '<span class="text-emerald-700 font-medium text-[10px]"><i class="fa-solid fa-check text-[9px] mr-1"></i>Protected</span>'}
               </div>
 
-              <button onclick="upvoteTip('${tip.id}')" class="flex items-center gap-1.5 text-xs font-semibold ${tip.isUpvoted ? 'text-indigo-600 bg-indigo-50 border-indigo-200' : 'text-slate-600 hover:text-indigo-600 bg-slate-50 border-slate-200'} border px-2.5 py-1 rounded-lg transition-all">
-                <i class="${tip.isUpvoted ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i>
-                <span>${tip.upvotes}</span>
-              </button>
+              <div class="flex items-center gap-2 shrink-0">
+                <!-- Upvote -->
+                <button onclick="upvoteTip('${tip.id}')" class="flex items-center gap-1 text-xs font-semibold ${tip.isUpvoted ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-slate-600 hover:text-emerald-700 bg-slate-50 border-slate-200'} border px-2.5 py-1 rounded-lg transition-all" title="Helpful">
+                  <i class="${tip.isUpvoted ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i>
+                  <span>${tip.upvotes}</span>
+                </button>
+
+                <!-- Report Flag -->
+                <button onclick="openReportModal('${tip.id}')" class="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-amber-600 bg-slate-50 hover:bg-amber-50 border border-slate-200 px-2 py-1 rounded-lg transition-all" title="Report tip">
+                  <i class="fa-regular fa-flag"></i>
+                  <span class="hidden sm:inline">Report</span>
+                </button>
+
+                <!-- Admin Action Buttons (Visible only when Admin logged in) -->
+                ${isAdminLoggedIn ? `
+                  ${isFlagged ? `
+                    <button onclick="dismissFlags('${tip.id}')" class="flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 px-2 py-1 rounded-lg transition-all" title="Dismiss reports">
+                      <i class="fa-solid fa-check-double text-[11px]"></i>
+                      <span class="hidden sm:inline">Clear Flag</span>
+                    </button>
+                  ` : ''}
+
+                  <button onclick="promptDeleteTip('${tip.id}')" class="flex items-center gap-1 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-2.5 py-1 rounded-lg transition-all" title="Delete tip">
+                    <i class="fa-solid fa-trash-can text-[11px]"></i>
+                    <span>Delete</span>
+                  </button>
+                ` : ''}
+              </div>
             </div>
 
           </article>
@@ -809,8 +1009,6 @@ Return ONLY JSON:
 
     async function processAndPreview(notify = true) {
       const title = tipTitleInput.value.trim();
-      const college = collegeInput.value.trim();
-      const batch = batchSelect.value;
 
       if (!title) {
         previewBox.classList.add('hidden');
@@ -819,24 +1017,17 @@ Return ONLY JSON:
         return null;
       }
 
-      const engine = document.querySelector('input[name="moderation-engine"]:checked').value;
       aiLoadingIndicator.classList.remove('hidden');
 
       try {
-        let result;
-        if (engine === 'gemini') {
-          result = await sanitizeWithGemini(title, college, batch);
-        } else {
-          result = localFallbackSanitizer(title, college);
-        }
-
+        const result = await sanitizeWithGemini(title);
         cachedSanitization = { raw: title, ...result };
 
         previewBox.classList.remove('hidden');
         previewSanitizedText.innerHTML = formatRedactedPills(result.sanitizedText);
         
         const count = result.redactedItems?.length || 0;
-        previewBadgeStatus.textContent = `${count} cleaned`;
+        previewBadgeStatus.textContent = `${count} masked`;
 
         if (result.harshnessDetected) {
           harshWarningBanner.classList.remove('hidden');
@@ -846,21 +1037,21 @@ Return ONLY JSON:
 
         if (count > 0) {
           previewChipsList.innerHTML = result.redactedItems.map(item => `
-            <span class="px-2 py-0.5 rounded-md bg-white border border-indigo-200 text-indigo-800 font-medium">
+            <span class="px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-emerald-800 font-medium">
               <i class="fa-solid fa-check text-[10px] mr-1 text-emerald-500"></i>${item}
             </span>
           `).join('');
         } else {
-          previewChipsList.innerHTML = `<span class="text-emerald-700 font-medium">Clean & polite.</span>`;
+          previewChipsList.innerHTML = `<span class="text-emerald-700 font-medium">Clean & constructive.</span>`;
         }
 
         if (notify) {
-          showToast(count > 0 ? `Sanitized ${count} sensitive or harsh detail(s).` : `Ready to post!`);
+          showToast(count > 0 ? `Scrubbed ${count} sensitive or harsh detail(s).` : `Ready to post!`);
         }
 
         return result;
       } catch (err) {
-        const fallback = localFallbackSanitizer(title, college);
+        const fallback = localFallbackSanitizer(title);
         cachedSanitization = { raw: title, ...fallback };
         return fallback;
       } finally {
@@ -869,16 +1060,10 @@ Return ONLY JSON:
     }
 
     async function submitTip() {
-      const college = collegeInput.value.trim();
       const title = tipTitleInput.value.trim();
-      const batch = batchSelect.value;
-      const branch = branchInput.value.trim();
-
-      if (!college) {
-        showToast("Please enter your College name.", true);
-        collegeInput.focus();
-        return;
-      }
+      const subject = subjectInput.value.trim();
+      const batch = batchInput.value.trim();
+      const tag = tagInput.value.trim();
 
       if (!title) {
         showToast("Please enter a Tip Title.", true);
@@ -900,11 +1085,10 @@ Return ONLY JSON:
       if (!finalResult) return;
 
       const newTip = {
-        id: "tip-" + Date.now(),
-        college: college,
+        id: "namc-" + Date.now(),
+        subject: subject,
         batch: batch,
-        branch: branch,
-        category: selectedCategory,
+        tag: tag,
         author: currentPersona.name,
         avatar: currentPersona,
         time: "Just now",
@@ -913,30 +1097,210 @@ Return ONLY JSON:
         redactions: finalResult.redactedItems || [],
         harshnessDetected: !!finalResult.harshnessDetected,
         upvotes: 0,
-        isUpvoted: false
+        isUpvoted: false,
+        reports: []
       };
 
       tips.unshift(newTip);
       persistTips();
-      updateCollegeOptions();
-      
-      feedCollegeFilter.value = college;
       renderFeed();
 
+      // Clear input fields
       tipTitleInput.value = '';
-      charCounter.textContent = '0 / 250 characters';
+      subjectInput.value = '';
+      batchInput.value = '';
+      tagInput.value = '';
+      charCounter.textContent = '0 / 280 characters';
       previewBox.classList.add('hidden');
       harshWarningBanner.classList.add('hidden');
       cachedSanitization = null;
       randomizePersona();
 
-      showToast(`Tip posted for "${college}"!`);
+      showToast("Tip posted successfully to NAMC board!");
     }
 
-    /* Event Listeners */
+    window.openReportModal = function(id) {
+      pendingReportTipId = id;
+      reportNoteInput.value = '';
+      reportModal.classList.remove('hidden');
+      reportModal.classList.add('flex');
+    };
+
+    function closeReportModal() {
+      pendingReportTipId = null;
+      reportModal.classList.add('hidden');
+      reportModal.classList.remove('flex');
+    }
+
+    function submitReport() {
+      if (!pendingReportTipId) return;
+
+      const selectedReason = document.querySelector('input[name="report-reason"]:checked')?.value || "General Concern";
+      const note = reportNoteInput.value.trim();
+
+      tips = tips.map(tip => {
+        if (tip.id === pendingReportTipId) {
+          const reports = tip.reports || [];
+          return {
+            ...tip,
+            reports: [...reports, { reason: selectedReason, note: note, date: new Date().toISOString() }]
+          };
+        }
+        return tip;
+      });
+
+      persistTips();
+      renderFeed();
+      closeReportModal();
+      showToast("Report submitted for admin review.");
+    }
+
+    window.promptDeleteTip = function(id) {
+      pendingDeleteTipId = id;
+      deleteConfirmModal.classList.remove('hidden');
+      deleteConfirmModal.classList.add('flex');
+    };
+
+    function closeDeleteModal() {
+      pendingDeleteTipId = null;
+      deleteConfirmModal.classList.add('hidden');
+      deleteConfirmModal.classList.remove('flex');
+    }
+
+    function confirmDeleteTip() {
+      if (!pendingDeleteTipId) return;
+      tips = tips.filter(t => t.id !== pendingDeleteTipId);
+      persistTips();
+      renderFeed();
+      closeDeleteModal();
+      showToast("Tip deleted by admin.");
+    }
+
+    window.dismissFlags = function(id) {
+      tips = tips.map(t => {
+        if (t.id === id) {
+          return { ...t, reports: [] };
+        }
+        return t;
+      });
+      persistTips();
+      renderFeed();
+      showToast("Flags dismissed for this tip.");
+    };
+
+    /* Admin Authentication Controls */
+    function openAdminModal() {
+      if (isAdminLoggedIn) {
+        // Toggle or stay logged in
+        return;
+      }
+      adminPasscodeInput.value = '';
+      adminLoginError.classList.add('hidden');
+      adminLoginModal.classList.remove('hidden');
+      adminLoginModal.classList.add('flex');
+      adminPasscodeInput.focus();
+    }
+
+    function closeAdminModal() {
+      adminLoginModal.classList.add('hidden');
+      adminLoginModal.classList.remove('flex');
+    }
+
+    function verifyAdminLogin() {
+      const entered = adminPasscodeInput.value.trim();
+      const currentPassword = getAdminPassword();
+
+      if (entered === currentPassword) {
+        isAdminLoggedIn = true;
+        closeAdminModal();
+        adminBar.classList.remove('hidden');
+        adminBtnLabel.textContent = "Admin Active";
+        showToast("Admin access granted.");
+        renderFeed();
+      } else {
+        adminLoginError.classList.remove('hidden');
+      }
+    }
+
+    function exitAdmin() {
+      isAdminLoggedIn = false;
+      showFlaggedOnly = false;
+      toggleFlaggedViewBtn.classList.remove('bg-amber-600', 'text-white');
+      toggleFlaggedViewBtn.classList.add('bg-slate-800');
+      adminBar.classList.add('hidden');
+      adminBtnLabel.textContent = "Admin Access";
+      showToast("Logged out of Admin mode.");
+      renderFeed();
+    }
+
+    function toggleFlaggedView() {
+      showFlaggedOnly = !showFlaggedOnly;
+      if (showFlaggedOnly) {
+        toggleFlaggedViewBtn.classList.remove('bg-slate-800');
+        toggleFlaggedViewBtn.classList.add('bg-amber-600', 'text-white');
+      } else {
+        toggleFlaggedViewBtn.classList.add('bg-slate-800');
+        toggleFlaggedViewBtn.classList.remove('bg-amber-600', 'text-white');
+      }
+      renderFeed();
+    }
+
+    /* Change Password Controls */
+    function openChangePassword() {
+      currentPwdInput.value = '';
+      newPwdInput.value = '';
+      confirmPwdInput.value = '';
+      changePwdMsg.classList.add('hidden');
+      changePasswordModal.classList.remove('hidden');
+      changePasswordModal.classList.add('flex');
+    }
+
+    function closeChangePassword() {
+      changePasswordModal.classList.add('hidden');
+      changePasswordModal.classList.remove('flex');
+    }
+
+    function saveNewPassword() {
+      const cur = currentPwdInput.value.trim();
+      const next = newPwdInput.value.trim();
+      const confirm = confirmPwdInput.value.trim();
+      const actualCurrent = getAdminPassword();
+
+      if (cur !== actualCurrent) {
+        changePwdMsg.className = "p-2 rounded-lg text-xs bg-rose-50 border border-rose-200 text-rose-700";
+        changePwdMsg.textContent = "Current password does not match.";
+        changePwdMsg.classList.remove('hidden');
+        return;
+      }
+
+      if (next.length < 6) {
+        changePwdMsg.className = "p-2 rounded-lg text-xs bg-rose-50 border border-rose-200 text-rose-700";
+        changePwdMsg.textContent = "New password must be at least 6 characters.";
+        changePwdMsg.classList.remove('hidden');
+        return;
+      }
+
+      if (next !== confirm) {
+        changePwdMsg.className = "p-2 rounded-lg text-xs bg-rose-50 border border-rose-200 text-rose-700";
+        changePwdMsg.textContent = "New password and confirmation do not match.";
+        changePwdMsg.classList.remove('hidden');
+        return;
+      }
+
+      saveAdminPassword(next);
+      changePwdMsg.className = "p-2 rounded-lg text-xs bg-emerald-50 border border-emerald-200 text-emerald-800";
+      changePwdMsg.textContent = "Password updated successfully!";
+      changePwdMsg.classList.remove('hidden');
+
+      setTimeout(() => {
+        closeChangePassword();
+        showToast("Admin password changed successfully.");
+      }, 1200);
+    }
+
     tipTitleInput.addEventListener('input', () => {
       const len = tipTitleInput.value.length;
-      charCounter.textContent = `${len} / 250 characters`;
+      charCounter.textContent = `${len} / 280 characters`;
       if (len === 0) {
         previewBox.classList.add('hidden');
         harshWarningBanner.classList.add('hidden');
@@ -944,55 +1308,43 @@ Return ONLY JSON:
       cachedSanitization = null;
     });
 
-    authorPersonaPill.addEventListener('click', randomizePersona);
+    personaToggleBtn.addEventListener('click', randomizePersona);
     previewBtn.addEventListener('click', () => processAndPreview(true));
     submitTipBtn.addEventListener('click', submitTip);
 
-    categoryButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        categoryButtons.forEach(b => {
-          b.classList.remove('active', 'bg-indigo-50', 'border-indigo-200', 'text-indigo-700', 'font-semibold');
-          b.classList.add('bg-slate-100', 'text-slate-600', 'font-medium');
-        });
-        btn.classList.add('active', 'bg-indigo-50', 'border', 'border-indigo-200', 'text-indigo-700', 'font-semibold');
-        btn.classList.remove('bg-slate-100', 'text-slate-600', 'font-medium');
-        selectedCategory = btn.getAttribute('data-category');
-      });
-    });
-
-    heroCollegeSearch.addEventListener('input', () => {
-      clearSearchBtn.classList.toggle('hidden', !heroCollegeSearch.value);
+    freeSearchInput.addEventListener('input', () => {
+      clearSearchBtn.classList.toggle('hidden', !freeSearchInput.value);
       renderFeed();
     });
 
     clearSearchBtn.addEventListener('click', () => {
-      heroCollegeSearch.value = '';
+      freeSearchInput.value = '';
       clearSearchBtn.classList.add('hidden');
       renderFeed();
     });
 
-    feedCollegeFilter.addEventListener('change', () => {
-      if (feedCollegeFilter.value !== 'ALL') {
-        heroCollegeSearch.value = feedCollegeFilter.value;
-        clearSearchBtn.classList.remove('hidden');
-      } else {
-        heroCollegeSearch.value = '';
-        clearSearchBtn.classList.add('hidden');
-      }
-      renderFeed();
+    // Admin & Modal Event Listeners
+    openAdminBtn.addEventListener('click', openAdminModal);
+    closeAdminLoginBtn.addEventListener('click', closeAdminModal);
+    cancelAdminLoginBtn.addEventListener('click', closeAdminModal);
+    submitAdminLoginBtn.addEventListener('click', verifyAdminLogin);
+    adminPasscodeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifyAdminLogin();
     });
 
-    feedBatchFilter.addEventListener('change', renderFeed);
-    feedCategoryFilter.addEventListener('change', renderFeed);
+    exitAdminBtn.addEventListener('click', exitAdmin);
+    toggleFlaggedViewBtn.addEventListener('click', toggleFlaggedView);
+    openChangePasswordBtn.addEventListener('click', openChangePassword);
+    closeChangePwdBtn.addEventListener('click', closeChangePassword);
+    cancelChangePwdBtn.addEventListener('click', closeChangePassword);
+    saveNewPwdBtn.addEventListener('click', saveNewPassword);
 
-    resetAllFiltersBtn.addEventListener('click', () => {
-      heroCollegeSearch.value = '';
-      feedCollegeFilter.value = 'ALL';
-      feedBatchFilter.value = 'ALL';
-      feedCategoryFilter.value = 'ALL';
-      clearSearchBtn.classList.add('hidden');
-      renderFeed();
-    });
+    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+    confirmDeleteBtn.addEventListener('click', confirmDeleteTip);
+
+    closeReportModalBtn.addEventListener('click', closeReportModal);
+    cancelReportBtn.addEventListener('click', closeReportModal);
+    submitReportBtn.addEventListener('click', submitReport);
 
     viewRulesBtn.addEventListener('click', () => {
       guidelinesModal.classList.remove('hidden');
@@ -1000,12 +1352,8 @@ Return ONLY JSON:
     });
     closeGuidelinesBtn.addEventListener('click', () => guidelinesModal.classList.add('hidden'));
     okGuidelinesBtn.addEventListener('click', () => guidelinesModal.classList.add('hidden'));
-    guidelinesModal.addEventListener('click', (e) => {
-      if (e.target === guidelinesModal) guidelinesModal.classList.add('hidden');
-    });
 
-    // Initial setup
-    updateCollegeOptions();
+    // Initialize state
     randomizePersona();
     renderFeed();
   </script>
