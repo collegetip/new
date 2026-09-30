@@ -71,7 +71,7 @@
 
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
             <span class="text-xs text-slate-400 flex items-center gap-1.5">
-              <span>🛡️</span> Names, phone numbers, room IDs, and abusive words are automatically redacted.
+              <span>🛡️</span> Names, cities, phone numbers, room IDs, and abusive words are automatically redacted.
             </span>
             <button type="submit" id="submitBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/30">
               Post Tip
@@ -126,7 +126,7 @@
         </div>
         <div class="p-3 bg-slate-950 rounded-xl border border-slate-800/80">
           <h4 class="font-semibold text-emerald-400 mb-1">2. Strict Privacy Protection (No Doxxing)</h4>
-          <p>Never share personal mobile numbers, emails, roll numbers, or personal room details. The system automatically redacts sensitive contact identifiers.</p>
+          <p>Never share names, cities, personal mobile numbers, emails, roll numbers, or personal room details. The system automatically redacts these identifiers when detected.</p>
         </div>
         <div class="p-3 bg-slate-950 rounded-xl border border-slate-800/80">
           <h4 class="font-semibold text-emerald-400 mb-1">3. Keep Tips Constructive & Academic</h4>
@@ -189,10 +189,17 @@
       // 4. Specific Room Numbers
       cleaned = cleaned.replace(/\b(room\s*(no|number)?[:\s\-]*)(\d+[a-zA-Z]?)\b/gi, '[Room Redacted]');
 
-      // 5. Explicit Personal Identifiers (e.g. "named Rahul Sharma", "Dr. John Doe", "Sir XYZ")
-      cleaned = cleaned.replace(/\b(by\s+|dr\.?\s+|prof\.?\s+|mr\.?\s+|ms\.?\s+|mrs\.?\s+|sir\s+|named\s+|naam\s+)([A-Z][a-z]+(\s+[A-Z][a-z]+)?)\b/g, '$1[Name Redacted]');
+      // 5. Names introduced with a title or an explicit name phrase
+      cleaned = cleaned.replace(/\b(?:[bB][yY]\s+|[dD][rR]\.?\s+|[pP][rR][oO][fF]\.??\s+|[mM][rR]\.??\s+|[mM][sS]\.??\s+|[mM][rR][sS]\.??\s+|[sS][iI][rR]\s+|[nN][aA][mM][eE][dD]\s+|[nN][aA][aA][mM]\s+)([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b/g, '[Name Redacted]');
+      cleaned = cleaned.replace(/\b(?:[mM][yY]\s+[nN][aA][mM][eE]\s+[iI][sS]|[iI]\s+[aA][mM]|[iI]'[mM]|[tT][hH][iI][sS]\s+[iI][sS]|[nN][aA][mM][eE]\s*[:\-])\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b/g, '[Name Redacted]');
 
-      // 6. Harsh / Abusive / Harassment Language Filter (English & Hindi/Hinglish Slurs)
+      // 6. Common Indian city names and explicitly labeled city/town values
+      const cities = ['Agra', 'Ahmedabad', 'Ajmer', 'Amritsar', 'Aurangabad', 'Bengaluru', 'Bhopal', 'Bhubaneswar', 'Chandigarh', 'Chennai', 'Coimbatore', 'Dehradun', 'Delhi', 'Dhanbad', 'Faridabad', 'Gandhinagar', 'Ghaziabad', 'Goa', 'Gurugram', 'Guwahati', 'Gwalior', 'Hyderabad', 'Indore', 'Jabalpur', 'Jaipur', 'Jalandhar', 'Jammu', 'Jamshedpur', 'Jodhpur', 'Kanpur', 'Kochi', 'Kolkata', 'Kota', 'Kozhikode', 'Lucknow', 'Ludhiana', 'Madurai', 'Meerut', 'Mumbai', 'Mysuru', 'Nagpur', 'Nashik', 'Noida', 'Patna', 'Prayagraj', 'Pune', 'Raipur', 'Rajkot', 'Ranchi', 'Shimla', 'Srinagar', 'Surat', 'Thane', 'Thiruvananthapuram', 'Udaipur', 'Vadodara', 'Varanasi', 'Vijayawada', 'Visakhapatnam'];
+      const cityPattern = new RegExp(`\\b(?:${cities.sort((a, b) => b.length - a.length).join('|')})\\b`, 'gi');
+      cleaned = cleaned.replace(cityPattern, '[City Redacted]');
+      cleaned = cleaned.replace(/\b(?:[cC][iI][tT][yY]|[tT][oO][wW][nN])\s*(?:[iI][sS]|:|-)\s*[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}\b/g, '[City Redacted]');
+
+      // 7. Harsh / Abusive / Harassment Language Filter (English & Hindi/Hinglish Slurs)
       const harshPatterns = [
         /\b(idiot|stupid|bastard|bitch|asshole|moron|loser|crap|shit|fuck|fucking|scumbag|rubbish)\b/gi,
         /\b(kamina|kamine|kutta|saala|saali|harami|chutiya|chutiye|madarchod|behenchod|bhenchod|bhosdike|gandu|laude|lodu|bakwaas)\b/gi
@@ -341,15 +348,15 @@
           <div class="flex items-center justify-between text-xs mb-3">
             <span class="font-medium text-emerald-400">${escapeHtml(tip.persona)}</span>
             <div class="flex items-center gap-2">
-              <span class="bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full">${escapeHtml(tip.subject)}</span>
-              <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">${escapeHtml(tip.batch)}</span>
+                <span class="bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full">${escapeHtml(sanitizeTipContent(tip.subject))}</span>
+                <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">${escapeHtml(sanitizeTipContent(tip.batch))}</span>
             </div>
           </div>
 
-          <p class="text-slate-100 text-sm leading-relaxed mb-4 whitespace-pre-wrap">${renderProtectedBadges(escapeHtml(tip.title))}</p>
+            <p class="text-slate-100 text-sm leading-relaxed mb-4 whitespace-pre-wrap">${renderProtectedBadges(escapeHtml(sanitizeTipContent(tip.title)))}</p>
 
           <div class="flex items-center justify-between pt-3 border-t border-slate-900 text-xs text-slate-400">
-            <span class="text-emerald-500/80 font-mono">#${escapeHtml(tip.tag)}</span>
+            <span class="text-emerald-500/80 font-mono">#${escapeHtml(sanitizeTipContent(tip.tag))}</span>
             <div class="flex items-center gap-3">
               ${tip.reports > 0 ? `<span class="text-amber-400 text-xs">⚠️ Flagged (${tip.reports})</span>` : ''}
               <button onclick="reportTip('${tip.id}')" class="hover:text-red-400 transition">🚩 Report</button>
@@ -367,6 +374,7 @@
         .replace(/\[Email Redacted\]/g, '<span class="bg-blue-950/80 text-blue-300 border border-blue-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Email Redacted]</span>')
         .replace(/\[Roll No Redacted\]/g, '<span class="bg-amber-950/80 text-amber-300 border border-amber-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Roll No Redacted]</span>')
         .replace(/\[Name Redacted\]/g, '<span class="bg-purple-950/80 text-purple-300 border border-purple-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Name Redacted]</span>')
+        .replace(/\[City Redacted\]/g, '<span class="bg-cyan-950/80 text-cyan-300 border border-cyan-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[City Redacted]</span>')
         .replace(/\[Room Redacted\]/g, '<span class="bg-teal-950/80 text-teal-300 border border-teal-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Room Redacted]</span>')
         .replace(/\[Restricted Content\]/g, '<span class="bg-red-950/80 text-red-300 border border-red-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Restricted Content]</span>');
     }
