@@ -1,1361 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NAMC Tip</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome 6 CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Inter Google Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            namc: {
-              50: '#f0fdf4',
-              100: '#dcfce7',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d',
-              800: '#166534',
-              900: '#14532d',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    /* Styling for AI sanitized personal details and softened tone badges */
-    .redaction-tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.15rem 0.45rem;
-      border-radius: 0.375rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      margin: 0 0.15rem;
-      border: 1px solid transparent;
-      user-select: none;
-    }
-    .redaction-tag.name { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
-    .redaction-tag.roll { background: #fef3c7; color: #92400e; border-color: #fde68a; }
-    .redaction-tag.contact { background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
-    .redaction-tag.room { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
-    .redaction-tag.toxic { background: #fce7f3; color: #9d174d; border-color: #fbcfe8; }
-  </style>
+  <!-- Supabase Client Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased flex flex-col justify-between">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans pb-16">
 
-  <!-- Header: Strict Title Only, No Subtitles or Taglines -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3 shrink-0">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-700 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-100">
-          <i class="fa-solid fa-leaf text-lg"></i>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="font-extrabold text-2xl text-slate-900 tracking-tight">NAMC Tip</span>
-          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-            NAMC Exclusive
-          </span>
-        </div>
-      </div>
-      
-      <!-- Right Header Actions: Privacy Rules & Admin Login -->
+  <!-- Supabase Setup -->
+  <script>
+    // ⚠️ REPLACE WITH YOUR REAL SUPABASE CREDENTIALS
+    const SUPABASE_URL = "https://rkuntogdqbccrzvaqazo.supabase.co/rest/v1/";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrdW50b2dkcWJjY3J6dmFxYXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MzU4NDUsImV4cCI6MjEwNjMxMTg0NX0.fBwA_2CdYQO6MU3de-GmT1Ro3MdzeS_He_P_xTgCbHs";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+
+  <!-- Navigation / Header -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-30 px-4 py-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <button id="view-rules-btn" class="text-slate-600 hover:text-emerald-700 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-200">
-          <i class="fa-solid fa-shield-halved text-emerald-600"></i>
-          <span class="hidden sm:inline">Rules</span>
+        <span class="text-emerald-400 text-2xl">🌿</span>
+        <h1 class="text-xl font-bold tracking-tight text-white">NAMC Tip</h1>
+        <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">NAMC Exclusive</span>
+      </div>
+
+      <div id="adminAuthControls">
+        <button id="adminLoginBtn" onclick="openLoginModal()" class="text-xs border border-slate-700 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition">
+          Admin Login
         </button>
-        <button id="open-admin-btn" class="text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-300">
-          <i class="fa-solid fa-user-shield text-slate-700"></i>
-          <span id="admin-btn-label">Admin Access</span>
-        </button>
+        <div id="adminLoggedInView" class="hidden flex items-center gap-2">
+          <span class="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded-full font-bold">Admin Active</span>
+          <button onclick="logoutAdmin()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition">
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Admin Active Floating Banner -->
-  <div id="admin-bar" class="hidden bg-slate-900 text-white border-b border-slate-800 px-4 py-2.5">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center justify-center w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="font-bold text-emerald-400">Admin Mode Active</span>
-        <span class="text-slate-400">|</span>
-        <button id="toggle-flagged-view-btn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white font-medium transition-all border border-slate-700 flex items-center gap-1.5">
-          <i class="fa-solid fa-flag text-amber-400"></i>
-          <span>View Flagged Only</span>
-          <span id="admin-flagged-count" class="ml-1 px-1.5 py-0.2 bg-amber-500 text-slate-950 font-bold rounded-full text-[10px]">0</span>
-        </button>
-      </div>
-      <div class="flex items-center gap-2">
-        <button id="open-change-password-btn" class="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-all flex items-center gap-1.5">
-          <i class="fa-solid fa-key text-[11px]"></i>
-          <span>Change Password</span>
-        </button>
-        <button id="exit-admin-btn" class="px-3 py-1 rounded bg-rose-600 hover:bg-rose-700 text-white font-medium transition-all flex items-center gap-1.5">
-          <i class="fa-solid fa-arrow-right-from-bracket text-[11px]"></i>
-          <span>Exit Admin</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Top Real-time Search Bar (Free text search for anything: subject, batch, keyword) -->
-  <section class="bg-slate-900 text-white py-4 px-4 border-b border-slate-800">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
-      <div class="relative w-full">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-        <input
-          id="free-search-input"
-          type="text"
-          placeholder="Search by subject, batch, viva tip, hostel, keyword..."
-          class="w-full text-xs sm:text-sm rounded-xl bg-slate-800 border border-slate-700 pl-10 pr-10 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-        />
-        <button id="clear-search-btn" class="absolute right-3.5 top-2.5 text-slate-400 hover:text-white hidden text-sm" title="Clear Search">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Grid: Left Tip Creator (Free-form inputs only) & Right Tip Feed -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-      <!-- LEFT: Drop a Tip Form (Zero Dropdowns, All Free-form Text) -->
-      <section class="lg:col-span-5 space-y-4">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
-              <i class="fa-solid fa-feather-pointed text-emerald-600"></i> Drop a Tip
-            </h2>
-
-            <!-- Random Anonymous Persona -->
-            <button id="persona-toggle-btn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-200 transition-colors" title="Change anonymous persona">
-              <span id="persona-icon"><i class="fa-solid fa-user-ninja text-emerald-600"></i></span>
-              <span id="persona-name">BAMS Senior 🌿</span>
-              <i class="fa-solid fa-arrows-rotate text-[10px] text-slate-400"></i>
-            </button>
-          </div>
-
-          <!-- Free-form Input: Subject / Department -->
-          <div class="space-y-1">
-            <label for="subject-input" class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-              <i class="fa-solid fa-book-medical text-emerald-600"></i> Subject / Department / Area
-            </label>
-            <input
-              id="subject-input"
-              type="text"
-              placeholder="e.g. Rachana Sharir, Dravyaguna, Anatomy Hall, Mess, Library"
-              class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 font-medium"
-            />
-          </div>
-
-          <!-- Free-form Inputs: Batch & Category / Tag -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label for="batch-input" class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                <i class="fa-solid fa-user-graduate text-slate-400"></i> Batch / Prof / Year
-              </label>
-              <input
-                id="batch-input"
-                type="text"
-                placeholder="e.g. 2nd Prof, Batch 2023, Intern"
-                class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 font-medium"
-              />
-            </div>
-
-            <div class="space-y-1">
-              <label for="tag-input" class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                <i class="fa-solid fa-tag text-slate-400"></i> Category / Tag
-              </label>
-              <input
-                id="tag-input"
-                type="text"
-                placeholder="e.g. Viva Hack, Exam Key, Hostel Life"
-                class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 font-medium"
-              />
-            </div>
-          </div>
-
-          <!-- Free-form Input: Tip Title Only (No Comment / Description box) -->
-          <div class="space-y-1.5">
-            <div class="flex items-center justify-between">
-              <label for="tip-title-input" class="text-xs font-semibold text-slate-700">
-                Tip Title <span class="text-red-500">*</span>
-              </label>
-              <span id="char-counter" class="text-[11px] text-slate-400">0 / 280 characters</span>
-            </div>
-            <textarea
-              id="tip-title-input"
-              rows="3"
-              class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 text-xs sm:text-sm font-medium resize-none"
-              placeholder="Type your tip title here... (e.g. Focus on Charaka Samhita Sutrasthana ch 1-10 for first internal viva)"
-              maxlength="280"
-              required
-            ></textarea>
-          </div>
-
-          <!-- AI Shield Indicator -->
-          <div class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200 text-xs">
-            <div class="flex items-center gap-2 text-emerald-900 font-medium">
-              <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i>
-              <span>Auto AI Shield (Names & Harsh Words Masked)</span>
-            </div>
-            <span id="ai-loading-indicator" class="hidden items-center gap-1.5 text-emerald-700 font-semibold text-xs">
-              <i class="fa-solid fa-circle-notch fa-spin text-xs"></i> Checking...
-            </span>
-          </div>
-
-          <!-- Sanitization Preview -->
-          <div id="preview-box" class="hidden space-y-2 pt-1">
-            <div class="flex items-center justify-between">
-              <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                <i class="fa-solid fa-shield-check text-emerald-600"></i> Sanitized Output
-              </h3>
-              <span id="preview-badge-status" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                0 masked
-              </span>
-            </div>
-
-            <div class="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
-              <div id="preview-sanitized-text" class="text-xs sm:text-sm font-semibold text-slate-900 leading-snug"></div>
-              <div id="preview-chips-list" class="flex flex-wrap gap-1 pt-1.5 border-t border-emerald-100 text-[11px]"></div>
-            </div>
-          </div>
-
-          <!-- Harsh Words Warning -->
-          <div id="harsh-warning-banner" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs space-y-1">
-            <div class="font-bold flex items-center gap-1.5">
-              <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Harsh or targeted words detected
-            </div>
-            <p>Toxic phrases have been softened into polite constructive phrasing so the tip remains helpful.</p>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="flex items-center gap-2 pt-1">
-            <button
-              id="preview-btn"
-              type="button"
-              class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all"
-            >
-              <i class="fa-solid fa-magnifying-glass"></i> Check
-            </button>
-            
-            <button
-              id="submit-tip-btn"
-              type="button"
-              class="flex-1 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-200 transition-all disabled:opacity-50"
-            >
-              <i class="fa-solid fa-check"></i> Post Tip
-            </button>
-          </div>
-
-          <!-- Toast Banner -->
-          <div id="toast-banner" class="hidden p-3 rounded-xl text-xs flex items-center gap-2"></div>
-        </div>
-      </section>
-
-      <!-- RIGHT: NAMC Community Feed (No dropdown filters) -->
-      <section class="lg:col-span-7 space-y-4">
-        <!-- Feed Top Counter -->
-        <div class="flex items-center justify-between px-1">
-          <div class="flex items-center gap-2">
-            <span class="font-bold text-slate-900 text-sm">NAMC Tips</span>
-            <span id="tips-count-badge" class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-xs font-semibold">0</span>
-          </div>
-          <span class="text-[11px] text-slate-500 font-medium">Free-form search active</span>
+  <main class="max-w-4xl mx-auto px-4 mt-8 space-y-8">
+    <!-- Submit Form -->
+    <section class="bg-slate-950 border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <h2 class="text-base font-semibold text-emerald-400 mb-4 flex items-center gap-2">
+        <span>✍️</span> Drop an Anonymous Tip
+      </h2>
+      <form id="tipForm" onsubmit="submitTip(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tip Title / Content</label>
+          <textarea id="tipTitle" required rows="3" placeholder="Share exam advice, viva secrets, clinical tips, or hostel hacks..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"></textarea>
         </div>
 
-        <!-- Feed List Container -->
-        <div id="tips-feed-container" class="space-y-3">
-          <!-- Populated by JavaScript -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Subject / Dept</label>
+            <input id="tipSubject" type="text" placeholder="e.g. Rachana Sharir, OPD" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Batch / Prof</label>
+            <input id="tipBatch" type="text" placeholder="e.g. 1st Prof, 2023" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Category Tag</label>
+            <input id="tipTag" type="text" placeholder="e.g. Viva, Exam, Hostel" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
+          </div>
         </div>
-      </section>
 
+        <div class="flex items-center justify-between pt-2">
+          <span class="text-xs text-slate-500">🔒 Names and contact details are automatically masked</span>
+          <button type="submit" id="submitBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/30">
+            Post Tip
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Search Bar -->
+    <div class="relative">
+      <input type="text" id="searchInput" oninput="filterTips()" placeholder="Search tips by subject, batch, or keyword..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
+      <span class="absolute left-3.5 top-3.5 text-slate-500">🔍</span>
     </div>
+
+    <!-- Feed -->
+    <section>
+      <div id="feedList" class="space-y-4">
+        <p class="text-center text-slate-500 py-10">Loading tips...</p>
+      </div>
+    </section>
   </main>
 
-  <!-- MODAL: Community Report Modal -->
-  <div id="report-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-flag text-amber-500"></i> Report Tip
-        </h3>
-        <button id="close-report-modal-btn" class="text-slate-400 hover:text-slate-600 text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <p class="text-xs text-slate-600 leading-relaxed">
-        Flag this tip for admin review if it violates privacy, targets an individual, or is toxic.
-      </p>
-
-      <div class="space-y-2 text-xs">
-        <label class="block font-semibold text-slate-700">Reason for Report</label>
-        <div class="space-y-1.5" id="report-reasons-group">
-          <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-            <input type="radio" name="report-reason" value="Personal Information / Doxxing" checked class="accent-emerald-600">
-            <span>Contains Personal Name / Phone / Roll Number</span>
-          </label>
-          <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-            <input type="radio" name="report-reason" value="Harassment or Bullying" class="accent-emerald-600">
-            <span>Harassment, Insult, or Targeted Toxicity</span>
-          </label>
-          <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-            <input type="radio" name="report-reason" value="False Exam / Subject Information" class="accent-emerald-600">
-            <span>Misleading or False Campus Info</span>
-          </label>
-          <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-            <input type="radio" name="report-reason" value="Spam or Inappropriate" class="accent-emerald-600">
-            <span>Spam / Inappropriate Content</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="space-y-1">
-        <label for="report-note-input" class="text-xs font-semibold text-slate-700">Optional Note</label>
-        <input
-          id="report-note-input"
-          type="text"
-          placeholder="Brief details for admin..."
-          class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-        />
-      </div>
-
-      <div class="flex items-center gap-2 pt-2">
-        <button id="cancel-report-btn" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
-          Cancel
-        </button>
-        <button id="submit-report-btn" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-md shadow-amber-200 transition-all">
-          Submit Report
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Admin Login -->
-  <div id="admin-login-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-lock text-emerald-600"></i> Admin Access
-        </h3>
-        <button id="close-admin-login-btn" class="text-slate-400 hover:text-slate-600 text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="space-y-2">
-        <label for="admin-passcode-input" class="text-xs font-semibold text-slate-700">Enter Admin Passcode</label>
-        <input
-          id="admin-passcode-input"
-          type="password"
-          placeholder="Enter passcode..."
-          class="w-full text-xs sm:text-sm rounded-xl border border-slate-300 px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-        />
-        <p class="text-[11px] text-slate-500">Default passcode is <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-emerald-700 font-bold">admin123</code></p>
-      </div>
-
-      <div id="admin-login-error" class="hidden p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-        Incorrect passcode. Please try again.
-      </div>
-
-      <div class="flex items-center gap-2 pt-2">
-        <button id="cancel-admin-login-btn" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
-          Cancel
-        </button>
-        <button id="submit-admin-login-btn" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-md shadow-emerald-200 transition-all">
-          Authorize
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Change Admin Password -->
-  <div id="change-password-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-key text-indigo-600"></i> Change Password
-        </h3>
-        <button id="close-change-pwd-btn" class="text-slate-400 hover:text-slate-600 text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="space-y-3">
-        <div class="space-y-1">
-          <label for="current-pwd-input" class="text-xs font-semibold text-slate-700">Current Password</label>
-          <input
-            id="current-pwd-input"
-            type="password"
-            placeholder="Current password"
-            class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label for="new-pwd-input" class="text-xs font-semibold text-slate-700">New Password</label>
-          <input
-            id="new-pwd-input"
-            type="password"
-            placeholder="New password (min 6 chars)"
-            class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label for="confirm-pwd-input" class="text-xs font-semibold text-slate-700">Confirm New Password</label>
-          <input
-            id="confirm-pwd-input"
-            type="password"
-            placeholder="Re-enter new password"
-            class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
-          />
-        </div>
-      </div>
-
-      <div id="change-pwd-msg" class="hidden p-2 rounded-lg text-xs"></div>
-
-      <div class="flex items-center gap-2 pt-2">
-        <button id="cancel-change-pwd-btn" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
-          Cancel
-        </button>
-        <button id="save-new-pwd-btn" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-200 transition-all">
-          Save Password
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Delete Tip Confirmation -->
-  <div id="delete-confirm-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-      <div class="flex items-center gap-3 text-rose-600">
-        <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
-          <i class="fa-solid fa-trash-can text-lg"></i>
+  <!-- Login Modal -->
+  <div id="loginModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-sm space-y-4">
+      <h3 class="text-lg font-bold text-white">Admin Secure Sign In</h3>
+      <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Admin Email</label>
+          <input type="email" id="adminEmail" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
         </div>
         <div>
-          <h3 class="font-bold text-slate-900 text-base">Delete Tip</h3>
-          <p class="text-xs text-slate-500">Admin removal action</p>
+          <label class="block text-xs text-slate-400 mb-1">Password</label>
+          <input type="password" id="adminPassword" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
         </div>
-      </div>
-
-      <p class="text-xs text-slate-600 leading-relaxed">
-        Are you sure you want to permanently delete this tip from the NAMC board? This action cannot be undone.
-      </p>
-
-      <div class="flex items-center gap-2 pt-2">
-        <button id="cancel-delete-btn" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50">
-          Cancel
-        </button>
-        <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-md shadow-rose-200 transition-all">
-          Confirm Delete
-        </button>
-      </div>
+        <p id="loginError" class="text-xs text-red-400 hidden"></p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeLoginModal()" class="px-4 py-2 text-xs bg-slate-800 text-slate-300 rounded-lg">Cancel</button>
+          <button type="submit" class="px-4 py-2 text-xs bg-emerald-600 text-white rounded-lg font-semibold">Sign In</button>
+        </div>
+      </form>
     </div>
   </div>
-
-  <!-- MODAL: Privacy & Conduct Rules -->
-  <div id="guidelines-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-emerald-600"></i> NAMC Tip Rules
-        </h3>
-        <button id="close-guidelines-btn" class="text-slate-400 hover:text-slate-600 text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="text-xs text-slate-600 space-y-3 leading-relaxed">
-        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-950 space-y-1">
-          <div class="font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-graduation-cap text-emerald-700"></i> Strictly for NAMC Students
-          </div>
-          <p class="text-[11px] text-emerald-800">
-            Share genuine advice on BAMS exams, viva keys, clinical postings, and campus life at Naiminath.
-          </p>
-        </div>
-
-        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-950 space-y-1">
-          <div class="font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-user-shield text-amber-700"></i> Automatic PII Redaction
-          </div>
-          <p class="text-[11px] text-amber-800">
-            Names, personal mobile numbers, roll numbers, and room numbers are automatically masked as red badges.
-          </p>
-        </div>
-
-        <div class="p-3 bg-rose-50 rounded-xl border border-rose-200 text-rose-950 space-y-1">
-          <div class="font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-hand text-rose-700"></i> Zero Harassment Policy
-          </div>
-          <p class="text-[11px] text-rose-800">
-            Insults and abusive terms are softened automatically. Defamatory or harmful tips can be reported and deleted by admins.
-          </p>
-        </div>
-      </div>
-
-      <button id="ok-guidelines-btn" class="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 transition-colors">
-        Understood
-      </button>
-    </div>
-  </div>
-
-  <!-- Footer: Strict Title Only -->
-  <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
-      <span class="font-bold text-slate-800 flex items-center gap-1.5">
-        <i class="fa-solid fa-leaf text-emerald-600"></i> NAMC Tip
-      </span>
-      <span>Naiminath Ayurvedic Medical College</span>
-    </div>
-  </footer>
 
   <script>
-    /* Anonymous NAMC Campus Personas */
-    const NAMC_PERSONAS = [
-      { name: "BAMS Senior 🌿", icon: "fa-solid fa-leaf", bg: "bg-emerald-100 text-emerald-700" },
-      { name: "Clinical Intern 🩺", icon: "fa-solid fa-stethoscope", bg: "bg-teal-100 text-teal-700" },
-      { name: "Herbology Buff 🍃", icon: "fa-solid fa-mortar-pestle", bg: "bg-amber-100 text-amber-700" },
-      { name: "Night Owl Reader 🦉", icon: "fa-solid fa-book-open", bg: "bg-indigo-100 text-indigo-700" },
-      { name: "Hostel Senior 🛏️", icon: "fa-solid fa-lightbulb", bg: "bg-violet-100 text-violet-700" }
-    ];
+    let allTips = [];
+    let currentUser = null;
 
-    let currentPersona = NAMC_PERSONAS[0];
-
-    /* Default initial NAMC tips (Realistic, Ayurvedic & Campus-focused) */
-    const SEED_NAMC_TIPS = [
-      {
-        id: "namc-101",
-        subject: "Dravyaguna",
-        batch: "2nd Prof",
-        tag: "Viva Hack",
-        author: "BAMS Senior 🌿",
-        avatar: NAMC_PERSONAS[0],
-        time: "15 mins ago",
-        title: "Memorize Latin names along with their Rasa, Guna, Veerya, and Vipaka using tabular comparison charts before external viva.",
-        sanitized: "Memorize Latin names along with their Rasa, Guna, Veerya, and Vipaka using tabular comparison charts before external viva.",
-        redactions: [],
-        harshnessDetected: false,
-        upvotes: 28,
-        isUpvoted: false,
-        reports: []
-      },
-      {
-        id: "namc-102",
-        subject: "Rachana Sharir",
-        batch: "1st Prof",
-        tag: "Dissection Hall",
-        author: "Herbology Buff 🍃",
-        avatar: NAMC_PERSONAS[2],
-        time: "1 hour ago",
-        title: "Always review Marma points and their dimensions before entering anatomy hall demonstrations.",
-        sanitized: "Always review Marma points and their dimensions before entering anatomy hall demonstrations.",
-        redactions: [],
-        harshnessDetected: false,
-        upvotes: 34,
-        isUpvoted: true,
-        reports: []
-      },
-      {
-        id: "namc-103",
-        subject: "NAMC Central Library",
-        batch: "Intern Batch",
-        tag: "Campus Secret",
-        author: "Night Owl Reader 🦉",
-        avatar: NAMC_PERSONAS[3],
-        time: "3 hours ago",
-        title: "Reference section on 2nd floor has rare commentary prints of Sushruta Samhita with diagrammatic surgical instruments.",
-        sanitized: "Reference section on 2nd floor has rare commentary prints of Sushruta Samhita with diagrammatic surgical instruments.",
-        redactions: [],
-        harshnessDetected: false,
-        upvotes: 49,
-        isUpvoted: false,
-        reports: []
-      }
-    ];
-
-    /* Storage Keys */
-    const STORAGE_KEY_TIPS = "namc_tips_feed_v1";
-    const STORAGE_KEY_PASS = "namc_admin_password_v1";
-    const DEFAULT_PASS = "admin123";
-
-    let tips = [];
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY_TIPS);
-      tips = stored ? JSON.parse(stored) : [...SEED_NAMC_TIPS];
-    } catch (e) {
-      tips = [...SEED_NAMC_TIPS];
+    // Sanitize PII (Names, Phone Numbers, Emails)
+    function sanitizeText(str) {
+      return str
+        .replace(/(\+91[\-\s]?)?[6789]\d{9}/g, '[Contact Redacted]')
+        .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[Email Redacted]');
     }
 
-    let isAdminLoggedIn = false;
-    let showFlaggedOnly = false;
-    let pendingReportTipId = null;
-    let pendingDeleteTipId = null;
-    let cachedSanitization = null;
+    // Personas
+    const personas = ['AyurScholar 📜', 'Rasashastra Mind 🧪', 'Charaka Disciple 🌿', 'Dhanvantari Seeker ✨', 'Quiet Intern 🩺'];
 
-    /* DOM Elements */
-    const subjectInput = document.getElementById('subject-input');
-    const batchInput = document.getElementById('batch-input');
-    const tagInput = document.getElementById('tag-input');
-    const tipTitleInput = document.getElementById('tip-title-input');
-    const charCounter = document.getElementById('char-counter');
-    const previewBtn = document.getElementById('preview-btn');
-    const submitTipBtn = document.getElementById('submit-tip-btn');
-    const previewBox = document.getElementById('preview-box');
-    const previewSanitizedText = document.getElementById('preview-sanitized-text');
-    const previewChipsList = document.getElementById('preview-chips-list');
-    const previewBadgeStatus = document.getElementById('preview-badge-status');
-    const harshWarningBanner = document.getElementById('harsh-warning-banner');
-    const aiLoadingIndicator = document.getElementById('ai-loading-indicator');
-    const toastBanner = document.getElementById('toast-banner');
-    const freeSearchInput = document.getElementById('free-search-input');
-    const clearSearchBtn = document.getElementById('clear-search-btn');
-    const tipsFeedContainer = document.getElementById('tips-feed-container');
-    const tipsCountBadge = document.getElementById('tips-count-badge');
-    const personaToggleBtn = document.getElementById('persona-toggle-btn');
-    const personaIcon = document.getElementById('persona-icon');
-    const personaName = document.getElementById('persona-name');
+    // Initialize App
+    async function init() {
+      // Check auth state
+      const { data: { session } } = await sb.auth.getSession();
+      currentUser = session ? session.user : null;
+      updateAdminUI();
 
-    /* Admin Elements */
-    const openAdminBtn = document.getElementById('open-admin-btn');
-    const adminBtnLabel = document.getElementById('admin-btn-label');
-    const adminBar = document.getElementById('admin-bar');
-    const adminFlaggedCount = document.getElementById('admin-flagged-count');
-    const toggleFlaggedViewBtn = document.getElementById('toggle-flagged-view-btn');
-    const openChangePasswordBtn = document.getElementById('open-change-password-btn');
-    const exitAdminBtn = document.getElementById('exit-admin-btn');
-    const adminLoginModal = document.getElementById('admin-login-modal');
-    const closeAdminLoginBtn = document.getElementById('close-admin-login-btn');
-    const cancelAdminLoginBtn = document.getElementById('cancel-admin-login-btn');
-    const submitAdminLoginBtn = document.getElementById('submit-admin-login-btn');
-    const adminPasscodeInput = document.getElementById('admin-passcode-input');
-    const adminLoginError = document.getElementById('admin-login-error');
-
-    /* Change Password Modal Elements */
-    const changePasswordModal = document.getElementById('change-password-modal');
-    const closeChangePwdBtn = document.getElementById('close-change-pwd-btn');
-    const cancelChangePwdBtn = document.getElementById('cancel-change-pwd-btn');
-    const saveNewPwdBtn = document.getElementById('save-new-pwd-btn');
-    const currentPwdInput = document.getElementById('current-pwd-input');
-    const newPwdInput = document.getElementById('new-pwd-input');
-    const confirmPwdInput = document.getElementById('confirm-pwd-input');
-    const changePwdMsg = document.getElementById('change-pwd-msg');
-
-    /* Delete Confirm Modal Elements */
-    const deleteConfirmModal = document.getElementById('delete-confirm-modal');
-    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-
-    /* Report Modal Elements */
-    const reportModal = document.getElementById('report-modal');
-    const closeReportModalBtn = document.getElementById('close-report-modal-btn');
-    const cancelReportBtn = document.getElementById('cancel-report-btn');
-    const submitReportBtn = document.getElementById('submit-report-btn');
-    const reportNoteInput = document.getElementById('report-note-input');
-
-    /* Rules Modal Elements */
-    const guidelinesModal = document.getElementById('guidelines-modal');
-    const viewRulesBtn = document.getElementById('view-rules-btn');
-    const closeGuidelinesBtn = document.getElementById('close-guidelines-btn');
-    const okGuidelinesBtn = document.getElementById('ok-guidelines-btn');
-
-    function getAdminPassword() {
-      return localStorage.getItem(STORAGE_KEY_PASS) || DEFAULT_PASS;
-    }
-
-    function saveAdminPassword(newPass) {
-      localStorage.setItem(STORAGE_KEY_PASS, newPass);
-    }
-
-    function persistTips() {
-      try {
-        localStorage.setItem(STORAGE_KEY_TIPS, JSON.stringify(tips));
-      } catch (e) {
-        console.warn("Storage quota exceeded", e);
-      }
-    }
-
-    function randomizePersona() {
-      const idx = Math.floor(Math.random() * NAMC_PERSONAS.length);
-      currentPersona = NAMC_PERSONAS[idx];
-      personaName.textContent = currentPersona.name;
-      personaIcon.innerHTML = `<i class="${currentPersona.icon} text-emerald-600"></i>`;
-    }
-
-    /* Local Regex Fallback Scrubber */
-    function localFallbackSanitizer(text) {
-      let sanitized = text;
-      let redactions = [];
-      let harshFound = false;
-
-      const harshPatterns = [
-        /\b(idiot|moron|stupid|asshole|bastard|bitch|worthless|scumbag|trash|loser|dumbass|fuck|shit|crap|kamina|saale|chutiya)\b/gi,
-        /\b(kill yourself|hate everyone|burn this place|scam college|fake college)\b/gi
-      ];
-
-      harshPatterns.forEach(pattern => {
-        if (pattern.test(sanitized)) {
-          harshFound = true;
-          sanitized = sanitized.replace(pattern, '[Polite phrasing substituted]');
-        }
+      sb.auth.onAuthStateChange((_event, session) => {
+        currentUser = session ? session.user : null;
+        updateAdminUI();
+        renderFeed(allTips);
       });
 
-      const emailRegex = /([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})/gi;
-      if (emailRegex.test(sanitized)) {
-        sanitized = sanitized.replace(emailRegex, '[Contact Redacted]');
-        redactions.push('Contact');
-      }
-
-      const phoneRegex = /(\+?\d{1,3}[-.\s]?)?(\(?\d{3,4}\)?[-.\s]?)?\d{3,5}[-.\s]?\d{4,5}/g;
-      if (phoneRegex.test(sanitized)) {
-        sanitized = sanitized.replace(phoneRegex, '[Contact Redacted]');
-        redactions.push('Contact');
-      }
-
-      const rollRegex = /\b(Roll\s*(No|Number)?|Reg\s*(No|Number)?|ID)?\s*([0-9]{2,4}[A-Za-z]{2,5}[0-9]{3,5}|[0-9]{6,12})\b/gi;
-      if (rollRegex.test(sanitized)) {
-        sanitized = sanitized.replace(rollRegex, '[Roll No Redacted]');
-        redactions.push('Roll Number');
-      }
-
-      const roomRegex = /\b(Room\s*(No|Number)?\s*[0-9]{1,4}[A-Za-z]?)\b/gi;
-      if (roomRegex.test(sanitized)) {
-        sanitized = sanitized.replace(roomRegex, '[Room Redacted]');
-        redactions.push('Room');
-      }
-
-      const nameRegex = /\b(Prof\.|Professor|Dr\.|Vaidya|Mr\.|Ms\.|Mrs\.|meet|contact|call|from)\s+([A-Z][a-z]+(\s+[A-Z][a-z]+)?)\b/gi;
-      if (nameRegex.test(sanitized)) {
-        sanitized = sanitized.replace(nameRegex, '$1 [Name Redacted]');
-        redactions.push('Name');
-      }
-
-      if (harshFound) redactions.push('Harsh Words Softened');
-
-      return {
-        sanitizedText: sanitized,
-        redactedItems: [...new Set(redactions)],
-        harshnessDetected: harshFound,
-        engine: 'Regex Scrubber'
-      };
+      await fetchTips();
     }
 
-    /* Gemini AI Sanitizer */
-    async function sanitizeWithGemini(rawText) {
-      const apiKey = "";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-      const systemInstruction = `You are the AI Privacy Guard for "NAMC Tip" (Naiminath Ayurvedic Medical College).
-1. REDACTION:
-   - Redact any specific person names, doctor names, or student names with "[Name Redacted]".
-   - Redact phone numbers and emails with "[Contact Redacted]".
-   - Redact roll numbers or university IDs with "[Roll No Redacted]".
-   - Redact hostel room numbers with "[Room Redacted]".
-
-2. HARSH WORDS & ANTI-HARASSMENT:
-   - Identify abusive words, toxic insults, or defamation.
-   - If found, set harshnessDetected to true and soften the phrase into constructive, polite phrasing.
-
-3. PRESERVATION:
-   - PRESERVE Ayurveda subject names (e.g. Rachana Sharir, Kriya Sharir, Dravyaguna, Rasa Shastra, Agada Tantra, Kayachikitsa, Shalya Tantra, etc.).
-   - PRESERVE college initials (NAMC) and campus facilities (library, anatomy hall, mess, hospital).
-
-Return JSON only:
-{
-  "sanitizedText": string,
-  "redactedItems": string[],
-  "harshnessDetected": boolean
-}`;
-
-      const payload = {
-        contents: [{ role: "user", parts: [{ text: `Tip Title for NAMC College:\n"${rawText}"` }] }],
-        systemInstruction: { parts: [{ text: systemInstruction }] },
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              sanitizedText: { type: "STRING" },
-              redactedItems: { type: "ARRAY", items: { type: "STRING" } },
-              harshnessDetected: { type: "BOOLEAN" }
-            },
-            required: ["sanitizedText", "redactedItems", "harshnessDetected"]
-          }
-        }
-      };
-
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-        const data = await response.json();
-        const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (candidateText) {
-          const parsed = JSON.parse(candidateText);
-          return {
-            sanitizedText: parsed.sanitizedText || rawText,
-            redactedItems: parsed.redactedItems || [],
-            harshnessDetected: !!parsed.harshnessDetected,
-            engine: 'Gemini AI'
-          };
-        }
-        throw new Error("Empty candidate received");
-      } catch (err) {
-        return localFallbackSanitizer(rawText);
-      }
-    }
-
-    function formatRedactedPills(text) {
-      if (!text) return "";
-      let safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      safe = safe.replace(/\[Name Redacted\]/g, '<span class="redaction-tag name"><i class="fa-solid fa-user-slash mr-1 text-[10px]"></i>Name Redacted</span>');
-      safe = safe.replace(/\[Roll No Redacted\]/g, '<span class="redaction-tag roll"><i class="fa-solid fa-id-badge mr-1 text-[10px]"></i>Roll No Redacted</span>');
-      safe = safe.replace(/\[Contact Redacted\]/g, '<span class="redaction-tag contact"><i class="fa-solid fa-phone-slash mr-1 text-[10px]"></i>Contact Redacted</span>');
-      safe = safe.replace(/\[Room Redacted\]/g, '<span class="redaction-tag room"><i class="fa-solid fa-door-closed mr-1 text-[10px]"></i>Room Redacted</span>');
-      safe = safe.replace(/\[(Polite phrasing substituted|Constructive feedback rephrased)\]/g, '<span class="redaction-tag toxic"><i class="fa-solid fa-hand-holding-heart mr-1 text-[10px]"></i>Harsh Words Softened</span>');
-      return safe;
-    }
-
-    function renderFeed() {
-      const query = freeSearchInput.value.toLowerCase().trim();
-      const flaggedCount = tips.filter(t => t.reports && t.reports.length > 0).length;
-      adminFlaggedCount.textContent = flaggedCount;
-
-      let filtered = tips.filter(tip => {
-        if (showFlaggedOnly && (!tip.reports || tip.reports.length === 0)) {
-          return false;
-        }
-
-        if (!query) return true;
-
-        const combinedText = `
-          ${tip.subject || ''} 
-          ${tip.batch || ''} 
-          ${tip.tag || ''} 
-          ${tip.title || ''} 
-          ${tip.sanitized || ''}
-          ${tip.author || ''}
-        `.toLowerCase();
-
-        return combinedText.includes(query);
-      });
-
-      tipsCountBadge.textContent = filtered.length;
-
-      if (filtered.length === 0) {
-        tipsFeedContainer.innerHTML = `
-          <div class="text-center py-12 px-4 border-2 border-dashed border-slate-200 rounded-2xl bg-white text-slate-400 space-y-2">
-            <i class="fa-solid fa-leaf text-2xl text-emerald-300"></i>
-            <p class="font-bold text-slate-700 text-sm">No tips match your search</p>
-            <p class="text-xs text-slate-400">Feel free to drop a tip for NAMC using the form on the left.</p>
-          </div>
-        `;
+    // Fetch Tips from Supabase
+    async function fetchTips() {
+      const { data, error } = await sb.from('tips').select('*').order('created_at', { ascending: false });
+      if (error) {
+        console.error(error);
+        document.getElementById('feedList').innerHTML = `<p class="text-center text-red-400 py-8">Failed to connect to database.</p>`;
         return;
       }
-
-      tipsFeedContainer.innerHTML = filtered.map(tip => {
-        const formattedTitle = formatRedactedPills(tip.sanitized || tip.title);
-        const hasRedactions = tip.redactions && tip.redactions.length > 0;
-        const reportCount = tip.reports ? tip.reports.length : 0;
-        const isFlagged = reportCount > 0;
-
-        return `
-          <article class="bg-white rounded-2xl p-4 sm:p-5 border ${isFlagged ? 'border-amber-300 bg-amber-50/20' : 'border-slate-200'} shadow-xs hover:border-slate-300 transition-all space-y-3">
-            
-            <!-- Card Header: Free text Subject, Batch, Tag badges -->
-            <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-2.5">
-              <div class="space-y-1">
-                <div class="flex flex-wrap items-center gap-1.5">
-                  ${tip.subject ? `
-                    <span class="font-bold text-xs text-emerald-900 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
-                      <i class="fa-solid fa-book-medical text-emerald-600"></i>
-                      ${tip.subject}
-                    </span>
-                  ` : ''}
-
-                  ${tip.batch ? `
-                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                      ${tip.batch}
-                    </span>
-                  ` : ''}
-
-                  ${tip.tag ? `
-                    <span class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
-                      #${tip.tag}
-                    </span>
-                  ` : ''}
-
-                  ${isFlagged ? `
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
-                      <i class="fa-solid fa-flag text-amber-600"></i> Reported (${reportCount})
-                    </span>
-                  ` : ''}
-                </div>
-
-                <div class="flex items-center gap-2 text-[11px] text-slate-500 pt-0.5">
-                  <span>${tip.time}</span>
-                  <span>•</span>
-                  <span>NAMC Campus</span>
-                </div>
-              </div>
-
-              <!-- Persona Avatar -->
-              <div class="flex items-center gap-2 shrink-0">
-                <div class="text-[11px] font-bold text-slate-700 hidden sm:block">${tip.author}</div>
-                <div class="w-7 h-7 rounded-full ${tip.avatar.bg} flex items-center justify-center text-xs">
-                  <i class="${tip.avatar.icon}"></i>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tip Title (Free-form) -->
-            <div class="text-sm font-semibold text-slate-900 leading-snug break-words">
-              ${formattedTitle}
-            </div>
-
-            <!-- Card Bottom Bar: Redaction status, Upvote, Report, and Admin Delete button -->
-            <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
-              <div class="flex items-center gap-1 text-[11px] flex-wrap">
-                ${hasRedactions 
-                  ? tip.redactions.map(r => `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium text-[10px]">${r}</span>`).join('') 
-                  : '<span class="text-emerald-700 font-medium text-[10px]"><i class="fa-solid fa-check text-[9px] mr-1"></i>Protected</span>'}
-              </div>
-
-              <div class="flex items-center gap-2 shrink-0">
-                <!-- Upvote -->
-                <button onclick="upvoteTip('${tip.id}')" class="flex items-center gap-1 text-xs font-semibold ${tip.isUpvoted ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-slate-600 hover:text-emerald-700 bg-slate-50 border-slate-200'} border px-2.5 py-1 rounded-lg transition-all" title="Helpful">
-                  <i class="${tip.isUpvoted ? 'fa-solid' : 'fa-regular'} fa-thumbs-up"></i>
-                  <span>${tip.upvotes}</span>
-                </button>
-
-                <!-- Report Flag -->
-                <button onclick="openReportModal('${tip.id}')" class="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-amber-600 bg-slate-50 hover:bg-amber-50 border border-slate-200 px-2 py-1 rounded-lg transition-all" title="Report tip">
-                  <i class="fa-regular fa-flag"></i>
-                  <span class="hidden sm:inline">Report</span>
-                </button>
-
-                <!-- Admin Action Buttons (Visible only when Admin logged in) -->
-                ${isAdminLoggedIn ? `
-                  ${isFlagged ? `
-                    <button onclick="dismissFlags('${tip.id}')" class="flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 px-2 py-1 rounded-lg transition-all" title="Dismiss reports">
-                      <i class="fa-solid fa-check-double text-[11px]"></i>
-                      <span class="hidden sm:inline">Clear Flag</span>
-                    </button>
-                  ` : ''}
-
-                  <button onclick="promptDeleteTip('${tip.id}')" class="flex items-center gap-1 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 px-2.5 py-1 rounded-lg transition-all" title="Delete tip">
-                    <i class="fa-solid fa-trash-can text-[11px]"></i>
-                    <span>Delete</span>
-                  </button>
-                ` : ''}
-              </div>
-            </div>
-
-          </article>
-        `;
-      }).join('');
+      allTips = data;
+      renderFeed(allTips);
     }
 
-    window.upvoteTip = function(id) {
-      tips = tips.map(t => {
-        if (t.id === id) {
-          return {
-            ...t,
-            upvotes: t.isUpvoted ? t.upvotes - 1 : t.upvotes + 1,
-            isUpvoted: !t.isUpvoted
-          };
-        }
-        return t;
-      });
-      persistTips();
-      renderFeed();
-    };
+    // Post a new tip
+    async function submitTip(e) {
+      e.preventDefault();
+      const titleInput = document.getElementById('tipTitle');
+      const subjectInput = document.getElementById('tipSubject');
+      const batchInput = document.getElementById('tipBatch');
+      const tagInput = document.getElementById('tipTag');
 
-    function showToast(message, isError = false) {
-      toastBanner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-red-50', 'text-red-800', 'border-red-200', 'border');
-      toastBanner.classList.add(isError ? 'bg-red-50' : 'bg-emerald-50');
-      toastBanner.classList.add(isError ? 'text-red-800' : 'text-emerald-800');
-      toastBanner.classList.add(isError ? 'border-red-200' : 'border-emerald-200', 'border');
-      toastBanner.innerHTML = `
-        <i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-circle-check'} text-sm shrink-0"></i>
-        <span>${message}</span>
-      `;
-      setTimeout(() => {
-        toastBanner.classList.add('hidden');
-      }, 4000);
-    }
+      const rawTitle = titleInput.value.trim();
+      if (!rawTitle) return;
 
-    async function processAndPreview(notify = true) {
-      const title = tipTitleInput.value.trim();
-
-      if (!title) {
-        previewBox.classList.add('hidden');
-        harshWarningBanner.classList.add('hidden');
-        cachedSanitization = null;
-        return null;
-      }
-
-      aiLoadingIndicator.classList.remove('hidden');
-
-      try {
-        const result = await sanitizeWithGemini(title);
-        cachedSanitization = { raw: title, ...result };
-
-        previewBox.classList.remove('hidden');
-        previewSanitizedText.innerHTML = formatRedactedPills(result.sanitizedText);
-        
-        const count = result.redactedItems?.length || 0;
-        previewBadgeStatus.textContent = `${count} masked`;
-
-        if (result.harshnessDetected) {
-          harshWarningBanner.classList.remove('hidden');
-        } else {
-          harshWarningBanner.classList.add('hidden');
-        }
-
-        if (count > 0) {
-          previewChipsList.innerHTML = result.redactedItems.map(item => `
-            <span class="px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-emerald-800 font-medium">
-              <i class="fa-solid fa-check text-[10px] mr-1 text-emerald-500"></i>${item}
-            </span>
-          `).join('');
-        } else {
-          previewChipsList.innerHTML = `<span class="text-emerald-700 font-medium">Clean & constructive.</span>`;
-        }
-
-        if (notify) {
-          showToast(count > 0 ? `Scrubbed ${count} sensitive or harsh detail(s).` : `Ready to post!`);
-        }
-
-        return result;
-      } catch (err) {
-        const fallback = localFallbackSanitizer(title);
-        cachedSanitization = { raw: title, ...fallback };
-        return fallback;
-      } finally {
-        aiLoadingIndicator.classList.add('hidden');
-      }
-    }
-
-    async function submitTip() {
-      const title = tipTitleInput.value.trim();
-      const subject = subjectInput.value.trim();
-      const batch = batchInput.value.trim();
-      const tag = tagInput.value.trim();
-
-      if (!title) {
-        showToast("Please enter a Tip Title.", true);
-        tipTitleInput.focus();
-        return;
-      }
-
-      submitTipBtn.disabled = true;
-      submitTipBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Checking...`;
-
-      let finalResult = cachedSanitization;
-      if (!finalResult || finalResult.raw !== title) {
-        finalResult = await processAndPreview(false);
-      }
-
-      submitTipBtn.disabled = false;
-      submitTipBtn.innerHTML = `<i class="fa-solid fa-check"></i> Post Tip`;
-
-      if (!finalResult) return;
+      const sanitizedTitle = sanitizeText(rawTitle);
+      const randomPersona = personas[Math.floor(Math.random() * personas.length)];
 
       const newTip = {
-        id: "namc-" + Date.now(),
-        subject: subject,
-        batch: batch,
-        tag: tag,
-        author: currentPersona.name,
-        avatar: currentPersona,
-        time: "Just now",
-        title: title,
-        sanitized: finalResult.sanitizedText,
-        redactions: finalResult.redactedItems || [],
-        harshnessDetected: !!finalResult.harshnessDetected,
-        upvotes: 0,
-        isUpvoted: false,
-        reports: []
+        title: sanitizedTitle,
+        subject: subjectInput.value.trim() || 'General',
+        batch: batchInput.value.trim() || 'BAMS',
+        tag: tagInput.value.trim() || 'Tip',
+        persona: randomPersona
       };
 
-      tips.unshift(newTip);
-      persistTips();
-      renderFeed();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerText = 'Posting...';
 
-      // Clear input fields
-      tipTitleInput.value = '';
+      const { data, error } = await sb.from('tips').insert([newTip]).select();
+      btn.disabled = false;
+      btn.innerText = 'Post Tip';
+
+      if (error) {
+        alert('Error submitting tip: ' + error.message);
+        return;
+      }
+
+      titleInput.value = '';
       subjectInput.value = '';
       batchInput.value = '';
       tagInput.value = '';
-      charCounter.textContent = '0 / 280 characters';
-      previewBox.classList.add('hidden');
-      harshWarningBanner.classList.add('hidden');
-      cachedSanitization = null;
-      randomizePersona();
 
-      showToast("Tip posted successfully to NAMC board!");
+      allTips.unshift(data[0]);
+      renderFeed(allTips);
     }
 
-    window.openReportModal = function(id) {
-      pendingReportTipId = id;
-      reportNoteInput.value = '';
-      reportModal.classList.remove('hidden');
-      reportModal.classList.add('flex');
-    };
+    // Delete Tip (Protected by Database Policy)
+    async function deleteTip(id) {
+      if (!confirm('Are you sure you want to delete this tip permanently?')) return;
 
-    function closeReportModal() {
-      pendingReportTipId = null;
-      reportModal.classList.add('hidden');
-      reportModal.classList.remove('flex');
-    }
-
-    function submitReport() {
-      if (!pendingReportTipId) return;
-
-      const selectedReason = document.querySelector('input[name="report-reason"]:checked')?.value || "General Concern";
-      const note = reportNoteInput.value.trim();
-
-      tips = tips.map(tip => {
-        if (tip.id === pendingReportTipId) {
-          const reports = tip.reports || [];
-          return {
-            ...tip,
-            reports: [...reports, { reason: selectedReason, note: note, date: new Date().toISOString() }]
-          };
-        }
-        return tip;
-      });
-
-      persistTips();
-      renderFeed();
-      closeReportModal();
-      showToast("Report submitted for admin review.");
-    }
-
-    window.promptDeleteTip = function(id) {
-      pendingDeleteTipId = id;
-      deleteConfirmModal.classList.remove('hidden');
-      deleteConfirmModal.classList.add('flex');
-    };
-
-    function closeDeleteModal() {
-      pendingDeleteTipId = null;
-      deleteConfirmModal.classList.add('hidden');
-      deleteConfirmModal.classList.remove('flex');
-    }
-
-    function confirmDeleteTip() {
-      if (!pendingDeleteTipId) return;
-      tips = tips.filter(t => t.id !== pendingDeleteTipId);
-      persistTips();
-      renderFeed();
-      closeDeleteModal();
-      showToast("Tip deleted by admin.");
-    }
-
-    window.dismissFlags = function(id) {
-      tips = tips.map(t => {
-        if (t.id === id) {
-          return { ...t, reports: [] };
-        }
-        return t;
-      });
-      persistTips();
-      renderFeed();
-      showToast("Flags dismissed for this tip.");
-    };
-
-    /* Admin Authentication Controls */
-    function openAdminModal() {
-      if (isAdminLoggedIn) {
-        // Toggle or stay logged in
+      const { error } = await sb.from('tips').delete().eq('id', id);
+      if (error) {
+        alert('Permission Denied: Only authenticated admins can delete tips.');
         return;
       }
-      adminPasscodeInput.value = '';
-      adminLoginError.classList.add('hidden');
-      adminLoginModal.classList.remove('hidden');
-      adminLoginModal.classList.add('flex');
-      adminPasscodeInput.focus();
+
+      allTips = allTips.filter(t => t.id !== id);
+      renderFeed(allTips);
     }
 
-    function closeAdminModal() {
-      adminLoginModal.classList.add('hidden');
-      adminLoginModal.classList.remove('flex');
+    // Report Tip
+    async function reportTip(id) {
+      const tip = allTips.find(t => t.id === id);
+      if (!tip) return;
+      const updatedReports = (tip.reports || 0) + 1;
+
+      const { error } = await sb.from('tips').update({ reports: updatedReports }).eq('id', id);
+      if (error) {
+        alert('Could not report.');
+        return;
+      }
+
+      tip.reports = updatedReports;
+      renderFeed(allTips);
+      alert('Thank you. This tip has been flagged for admin review.');
     }
 
-    function verifyAdminLogin() {
-      const entered = adminPasscodeInput.value.trim();
-      const currentPassword = getAdminPassword();
+    // Render Feed
+    function renderFeed(tips) {
+      const feed = document.getElementById('feedList');
+      if (!tips || tips.length === 0) {
+        feed.innerHTML = `<div class="text-center text-slate-500 py-10 bg-slate-950/40 rounded-xl border border-slate-800">No tips found. Be the first to post one!</div>`;
+        return;
+      }
 
-      if (entered === currentPassword) {
-        isAdminLoggedIn = true;
-        closeAdminModal();
-        adminBar.classList.remove('hidden');
-        adminBtnLabel.textContent = "Admin Active";
-        showToast("Admin access granted.");
-        renderFeed();
+      feed.innerHTML = tips.map(tip => `
+        <div class="bg-slate-950 border border-slate-800/90 rounded-2xl p-5 hover:border-slate-700 transition">
+          <div class="flex items-center justify-between text-xs mb-3">
+            <span class="font-medium text-emerald-400">${escapeHtml(tip.persona)}</span>
+            <div class="flex items-center gap-2">
+              <span class="bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full">${escapeHtml(tip.subject)}</span>
+              <span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">${escapeHtml(tip.batch)}</span>
+            </div>
+          </div>
+
+          <p class="text-slate-100 text-sm leading-relaxed mb-4 whitespace-pre-wrap">${escapeHtml(tip.title)}</p>
+
+          <div class="flex items-center justify-between pt-3 border-t border-slate-900 text-xs text-slate-400">
+            <span class="text-emerald-500/80 font-mono">#${escapeHtml(tip.tag)}</span>
+            <div class="flex items-center gap-3">
+              ${tip.reports > 0 ? `<span class="text-amber-400 text-xs">⚠️ Flagged (${tip.reports})</span>` : ''}
+              <button onclick="reportTip('${tip.id}')" class="hover:text-red-400 transition">🚩 Report</button>
+              ${currentUser ? `<button onclick="deleteTip('${tip.id}')" class="text-red-400 font-semibold hover:underline">🗑️ Delete</button>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Search filter
+    function filterTips() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allTips.filter(t => 
+        t.title.toLowerCase().includes(q) ||
+        t.subject.toLowerCase().includes(q) ||
+        t.batch.toLowerCase().includes(q) ||
+        t.tag.toLowerCase().includes(q)
+      );
+      renderFeed(filtered);
+    }
+
+    // Modal & Auth Controls
+    function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
+    function closeLoginModal() { 
+      document.getElementById('loginModal').classList.add('hidden'); 
+      document.getElementById('loginError').classList.add('hidden');
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+      const errEl = document.getElementById('loginError');
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        errEl.innerText = error.message;
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      closeLoginModal();
+    }
+
+    async function logoutAdmin() {
+      await sb.auth.signOut();
+    }
+
+    function updateAdminUI() {
+      if (currentUser) {
+        document.getElementById('adminLoginBtn').classList.add('hidden');
+        document.getElementById('adminLoggedInView').classList.remove('hidden');
       } else {
-        adminLoginError.classList.remove('hidden');
+        document.getElementById('adminLoginBtn').classList.remove('hidden');
+        document.getElementById('adminLoggedInView').classList.add('hidden');
       }
     }
 
-    function exitAdmin() {
-      isAdminLoggedIn = false;
-      showFlaggedOnly = false;
-      toggleFlaggedViewBtn.classList.remove('bg-amber-600', 'text-white');
-      toggleFlaggedViewBtn.classList.add('bg-slate-800');
-      adminBar.classList.add('hidden');
-      adminBtnLabel.textContent = "Admin Access";
-      showToast("Logged out of Admin mode.");
-      renderFeed();
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
 
-    function toggleFlaggedView() {
-      showFlaggedOnly = !showFlaggedOnly;
-      if (showFlaggedOnly) {
-        toggleFlaggedViewBtn.classList.remove('bg-slate-800');
-        toggleFlaggedViewBtn.classList.add('bg-amber-600', 'text-white');
-      } else {
-        toggleFlaggedViewBtn.classList.add('bg-slate-800');
-        toggleFlaggedViewBtn.classList.remove('bg-amber-600', 'text-white');
-      }
-      renderFeed();
-    }
-
-    /* Change Password Controls */
-    function openChangePassword() {
-      currentPwdInput.value = '';
-      newPwdInput.value = '';
-      confirmPwdInput.value = '';
-      changePwdMsg.classList.add('hidden');
-      changePasswordModal.classList.remove('hidden');
-      changePasswordModal.classList.add('flex');
-    }
-
-    function closeChangePassword() {
-      changePasswordModal.classList.add('hidden');
-      changePasswordModal.classList.remove('flex');
-    }
-
-    function saveNewPassword() {
-      const cur = currentPwdInput.value.trim();
-      const next = newPwdInput.value.trim();
-      const confirm = confirmPwdInput.value.trim();
-      const actualCurrent = getAdminPassword();
-
-      if (cur !== actualCurrent) {
-        changePwdMsg.className = "p-2 rounded-lg text-xs bg-rose-50 border border-rose-200 text-rose-700";
-        changePwdMsg.textContent = "Current password does not match.";
-        changePwdMsg.classList.remove('hidden');
-        return;
-      }
-
-      if (next.length < 6) {
-        changePwdMsg.className = "p-2 rounded-lg text-xs bg-rose-50 border border-rose-200 text-rose-700";
-        changePwdMsg.textContent = "New password must be at least 6 characters.";
-        changePwdMsg.classList.remove('hidden');
-        return;
-      }
-
-      if (next !== confirm) {
-        changePwdMsg.className = "p-2 rounded-lg text-xs bg-rose-50 border border-rose-200 text-rose-700";
-        changePwdMsg.textContent = "New password and confirmation do not match.";
-        changePwdMsg.classList.remove('hidden');
-        return;
-      }
-
-      saveAdminPassword(next);
-      changePwdMsg.className = "p-2 rounded-lg text-xs bg-emerald-50 border border-emerald-200 text-emerald-800";
-      changePwdMsg.textContent = "Password updated successfully!";
-      changePwdMsg.classList.remove('hidden');
-
-      setTimeout(() => {
-        closeChangePassword();
-        showToast("Admin password changed successfully.");
-      }, 1200);
-    }
-
-    tipTitleInput.addEventListener('input', () => {
-      const len = tipTitleInput.value.length;
-      charCounter.textContent = `${len} / 280 characters`;
-      if (len === 0) {
-        previewBox.classList.add('hidden');
-        harshWarningBanner.classList.add('hidden');
-      }
-      cachedSanitization = null;
-    });
-
-    personaToggleBtn.addEventListener('click', randomizePersona);
-    previewBtn.addEventListener('click', () => processAndPreview(true));
-    submitTipBtn.addEventListener('click', submitTip);
-
-    freeSearchInput.addEventListener('input', () => {
-      clearSearchBtn.classList.toggle('hidden', !freeSearchInput.value);
-      renderFeed();
-    });
-
-    clearSearchBtn.addEventListener('click', () => {
-      freeSearchInput.value = '';
-      clearSearchBtn.classList.add('hidden');
-      renderFeed();
-    });
-
-    // Admin & Modal Event Listeners
-    openAdminBtn.addEventListener('click', openAdminModal);
-    closeAdminLoginBtn.addEventListener('click', closeAdminModal);
-    cancelAdminLoginBtn.addEventListener('click', closeAdminModal);
-    submitAdminLoginBtn.addEventListener('click', verifyAdminLogin);
-    adminPasscodeInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') verifyAdminLogin();
-    });
-
-    exitAdminBtn.addEventListener('click', exitAdmin);
-    toggleFlaggedViewBtn.addEventListener('click', toggleFlaggedView);
-    openChangePasswordBtn.addEventListener('click', openChangePassword);
-    closeChangePwdBtn.addEventListener('click', closeChangePassword);
-    cancelChangePwdBtn.addEventListener('click', closeChangePassword);
-    saveNewPwdBtn.addEventListener('click', saveNewPassword);
-
-    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-    confirmDeleteBtn.addEventListener('click', confirmDeleteTip);
-
-    closeReportModalBtn.addEventListener('click', closeReportModal);
-    cancelReportBtn.addEventListener('click', closeReportModal);
-    submitReportBtn.addEventListener('click', submitReport);
-
-    viewRulesBtn.addEventListener('click', () => {
-      guidelinesModal.classList.remove('hidden');
-      guidelinesModal.classList.add('flex');
-    });
-    closeGuidelinesBtn.addEventListener('click', () => guidelinesModal.classList.add('hidden'));
-    okGuidelinesBtn.addEventListener('click', () => guidelinesModal.classList.add('hidden'));
-
-    // Initialize state
-    randomizePersona();
-    renderFeed();
+    init();
   </script>
 </body>
 </html>
