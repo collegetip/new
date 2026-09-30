@@ -8,88 +8,142 @@
   <!-- Supabase Client Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans pb-16">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
 
   <!-- Supabase Setup -->
   <script>
-    // ⚠️ REPLACE WITH YOUR REAL SUPABASE CREDENTIALS
-    const SUPABASE_URL = 'https://rkuntogdqbccrzvaqazo.supabase.co';
+    // ⚠️ REPLACE WITH YOUR REAL SUPABASE CREDENTIALS (NO TRAILING SLASH IN URL)
+    const SUPABASE_URL = "'https://rkuntogdqbccrzvaqazo.supabase.co'";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrdW50b2dkcWJjY3J6dmFxYXpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MzU4NDUsImV4cCI6MjEwNjMxMTg0NX0.fBwA_2CdYQO6MU3de-GmT1Ro3MdzeS_He_P_xTgCbHs";
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
 
-  <!-- Navigation / Header -->
-  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-30 px-4 py-3">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
+  <div>
+    <!-- Navigation / Header -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-30 px-4 py-3">
+      <div class="max-w-4xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 text-2xl">🌿</span>
+          <h1 class="text-xl font-bold tracking-tight text-white">NAMC Tip</h1>
+          <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">NAMC Exclusive</span>
+        </div>
+
+        <div id="adminAuthControls">
+          <button id="adminLoginBtn" onclick="openLoginModal()" class="text-xs border border-slate-700 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition">
+            Admin Login
+          </button>
+          <div id="adminLoggedInView" class="hidden flex items-center gap-2">
+            <span class="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded-full font-bold">Admin Active</span>
+            <button onclick="logoutAdmin()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-8 space-y-8">
+      <!-- Submit Form -->
+      <section class="bg-slate-950 border border-slate-800 p-6 rounded-2xl shadow-xl">
+        <h2 class="text-base font-semibold text-emerald-400 mb-4 flex items-center gap-2">
+          <span>✍️</span> Drop an Anonymous Tip
+        </h2>
+        <form id="tipForm" onsubmit="submitTip(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tip Title / Content</label>
+            <textarea id="tipTitle" required rows="3" placeholder="Share exam advice, viva secrets, clinical tips, or hostel hacks..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Subject / Dept</label>
+              <input id="tipSubject" type="text" placeholder="e.g. Rachana Sharir, OPD" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Batch / Prof</label>
+              <input id="tipBatch" type="text" placeholder="e.g. 1st Prof, 2023" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Category Tag</label>
+              <input id="tipTag" type="text" placeholder="e.g. Viva, Exam, Hostel" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <span class="text-xs text-slate-400 flex items-center gap-1.5">
+              <span>🛡️</span> Names, phone numbers, room IDs, and abusive words are automatically redacted.
+            </span>
+            <button type="submit" id="submitBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/30">
+              Post Tip
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Search Bar -->
+      <div class="relative">
+        <input type="text" id="searchInput" oninput="filterTips()" placeholder="Search tips by subject, batch, or keyword..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
+        <span class="absolute left-3.5 top-3.5 text-slate-500">🔍</span>
+      </div>
+
+      <!-- Feed -->
+      <section>
+        <div id="feedList" class="space-y-4">
+          <p class="text-center text-slate-500 py-10">Loading tips...</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer with Community Rules Tab -->
+  <footer class="mt-16 border-t border-slate-800 bg-slate-950/70 py-6 px-4">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
       <div class="flex items-center gap-2">
-        <span class="text-emerald-400 text-2xl">🌿</span>
-        <h1 class="text-xl font-bold tracking-tight text-white">NAMC Tip</h1>
-        <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">NAMC Exclusive</span>
+        <span class="text-emerald-400">🌿</span>
+        <span>© 2026 NAMC Tip • For Naiminath Ayurvedic Medical College Students</span>
       </div>
-
-      <div id="adminAuthControls">
-        <button id="adminLoginBtn" onclick="openLoginModal()" class="text-xs border border-slate-700 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition">
-          Admin Login
+      <div class="flex items-center gap-4">
+        <button onclick="openRulesModal()" class="text-emerald-400 hover:text-emerald-300 font-medium underline underline-offset-4 transition flex items-center gap-1">
+          <span>📜</span> Community Rules & Guidelines
         </button>
-        <div id="adminLoggedInView" class="hidden flex items-center gap-2">
-          <span class="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded-full font-bold">Admin Active</span>
-          <button onclick="logoutAdmin()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition">
-            Logout
-          </button>
-        </div>
       </div>
     </div>
-  </header>
+  </footer>
 
-  <main class="max-w-4xl mx-auto px-4 mt-8 space-y-8">
-    <!-- Submit Form -->
-    <section class="bg-slate-950 border border-slate-800 p-6 rounded-2xl shadow-xl">
-      <h2 class="text-base font-semibold text-emerald-400 mb-4 flex items-center gap-2">
-        <span>✍️</span> Drop an Anonymous Tip
-      </h2>
-      <form id="tipForm" onsubmit="submitTip(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tip Title / Content</label>
-          <textarea id="tipTitle" required rows="3" placeholder="Share exam advice, viva secrets, clinical tips, or hostel hacks..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"></textarea>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Subject / Dept</label>
-            <input id="tipSubject" type="text" placeholder="e.g. Rachana Sharir, OPD" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Batch / Prof</label>
-            <input id="tipBatch" type="text" placeholder="e.g. 1st Prof, 2023" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Category Tag</label>
-            <input id="tipTag" type="text" placeholder="e.g. Viva, Exam, Hostel" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" />
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between pt-2">
-          <span class="text-xs text-slate-500">🔒 Names and contact details are automatically masked</span>
-          <button type="submit" id="submitBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/30">
-            Post Tip
-          </button>
-        </div>
-      </form>
-    </section>
-
-    <!-- Search Bar -->
-    <div class="relative">
-      <input type="text" id="searchInput" oninput="filterTips()" placeholder="Search tips by subject, batch, or keyword..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
-      <span class="absolute left-3.5 top-3.5 text-slate-500">🔍</span>
-    </div>
-
-    <!-- Feed -->
-    <section>
-      <div id="feedList" class="space-y-4">
-        <p class="text-center text-slate-500 py-10">Loading tips...</p>
+  <!-- Rules Modal -->
+  <div id="rulesModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-lg space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <span>📜</span> NAMC Tip Community Rules
+        </h3>
+        <button onclick="closeRulesModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
       </div>
-    </section>
-  </main>
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800/80">
+          <h4 class="font-semibold text-emerald-400 mb-1">1. Zero Tolerance for Harassment & Abuse</h4>
+          <p>Insults, profanity, bullying, defamation, and targeted harassment against students, doctors, or staff are strictly prohibited. Abusive words will be automatically scrubbed.</p>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800/80">
+          <h4 class="font-semibold text-emerald-400 mb-1">2. Strict Privacy Protection (No Doxxing)</h4>
+          <p>Never share personal mobile numbers, emails, roll numbers, or personal room details. The system automatically redacts sensitive contact identifiers.</p>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800/80">
+          <h4 class="font-semibold text-emerald-400 mb-1">3. Keep Tips Constructive & Academic</h4>
+          <p>Share useful guidance for viva preparation, clinical rounds, exam questions, study resources, and genuine hostel hacks that help fellow peers succeed.</p>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800/80">
+          <h4 class="font-semibold text-emerald-400 mb-1">4. Community Moderation</h4>
+          <p>Any student can report inappropriate tips using the flag button. Posts flagged multiple times will be prioritized for permanent deletion by the admin.</p>
+        </div>
+      </div>
+      <div class="flex justify-end pt-2">
+        <button type="button" onclick="closeRulesModal()" class="px-4 py-2 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold transition">
+          I Understand
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Login Modal -->
   <div id="loginModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -117,11 +171,38 @@
     let allTips = [];
     let currentUser = null;
 
-    // Sanitize PII (Names, Phone Numbers, Emails)
-    function sanitizeText(str) {
-      return str
-        .replace(/(\+91[\-\s]?)?[6789]\d{9}/g, '[Contact Redacted]')
-        .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[Email Redacted]');
+    // Comprehensive Sanitizer: Harsh Words & PII Redaction
+    function sanitizeTipContent(text) {
+      if (!text) return '';
+      let cleaned = text;
+
+      // 1. Phone & WhatsApp Numbers
+      cleaned = cleaned.replace(/(\+91[\-\s]?)?[6789]\d{9}\b/g, '[Contact Redacted]');
+
+      // 2. Email Addresses
+      cleaned = cleaned.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, '[Email Redacted]');
+
+      // 3. Roll Numbers & Registration IDs
+      cleaned = cleaned.replace(/\b(roll\s*(no|number)?[:\s\-]*)[a-zA-Z0-9\-\/]{4,}\b/gi, '[Roll No Redacted]');
+      cleaned = cleaned.replace(/\b(reg\s*(no|number)?[:\s\-]*)[a-zA-Z0-9\-\/]{4,}\b/gi, '[Roll No Redacted]');
+
+      // 4. Specific Room Numbers
+      cleaned = cleaned.replace(/\b(room\s*(no|number)?[:\s\-]*)(\d+[a-zA-Z]?)\b/gi, '[Room Redacted]');
+
+      // 5. Explicit Personal Identifiers (e.g. "named Rahul Sharma", "Dr. John Doe", "Sir XYZ")
+      cleaned = cleaned.replace(/\b(by\s+|dr\.?\s+|prof\.?\s+|mr\.?\s+|ms\.?\s+|mrs\.?\s+|sir\s+|named\s+|naam\s+)([A-Z][a-z]+(\s+[A-Z][a-z]+)?)\b/g, '$1[Name Redacted]');
+
+      // 6. Harsh / Abusive / Harassment Language Filter (English & Hindi/Hinglish Slurs)
+      const harshPatterns = [
+        /\b(idiot|stupid|bastard|bitch|asshole|moron|loser|crap|shit|fuck|fucking|scumbag|rubbish)\b/gi,
+        /\b(kamina|kamine|kutta|saala|saali|harami|chutiya|chutiye|madarchod|behenchod|bhenchod|bhosdike|gandu|laude|lodu|bakwaas)\b/gi
+      ];
+
+      harshPatterns.forEach(pattern => {
+        cleaned = cleaned.replace(pattern, '[Restricted Content]');
+      });
+
+      return cleaned;
     }
 
     // Personas
@@ -129,30 +210,35 @@
 
     // Initialize App
     async function init() {
-      // Check auth state
-      const { data: { session } } = await sb.auth.getSession();
-      currentUser = session ? session.user : null;
-      updateAdminUI();
-
-      sb.auth.onAuthStateChange((_event, session) => {
+      // Check Supabase session
+      try {
+        const { data: { session } } = await sb.auth.getSession();
         currentUser = session ? session.user : null;
         updateAdminUI();
-        renderFeed(allTips);
-      });
+
+        sb.auth.onAuthStateChange((_event, session) => {
+          currentUser = session ? session.user : null;
+          updateAdminUI();
+          renderFeed(allTips);
+        });
+      } catch (err) {
+        console.warn("Supabase auth not initialized or offline:", err);
+      }
 
       await fetchTips();
     }
 
     // Fetch Tips from Supabase
     async function fetchTips() {
-      const { data, error } = await sb.from('tips').select('*').order('created_at', { ascending: false });
-      if (error) {
-        console.error(error);
-        document.getElementById('feedList').innerHTML = `<p class="text-center text-red-400 py-8">Failed to connect to database.</p>`;
-        return;
+      try {
+        const { data, error } = await sb.from('tips').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        allTips = data || [];
+        renderFeed(allTips);
+      } catch (error) {
+        console.error("Fetch tips error:", error);
+        document.getElementById('feedList').innerHTML = `<p class="text-center text-red-400 py-8 text-sm">Failed to connect to database. Please check your Supabase credentials.</p>`;
       }
-      allTips = data;
-      renderFeed(allTips);
     }
 
     // Post a new tip
@@ -166,14 +252,19 @@
       const rawTitle = titleInput.value.trim();
       if (!rawTitle) return;
 
-      const sanitizedTitle = sanitizeText(rawTitle);
+      // Apply harsh word + PII sanitization
+      const sanitizedTitle = sanitizeTipContent(rawTitle);
+      const sanitizedSubject = sanitizeTipContent(subjectInput.value.trim()) || 'General';
+      const sanitizedBatch = sanitizeTipContent(batchInput.value.trim()) || 'BAMS';
+      const sanitizedTag = sanitizeTipContent(tagInput.value.trim()) || 'Tip';
+
       const randomPersona = personas[Math.floor(Math.random() * personas.length)];
 
       const newTip = {
         title: sanitizedTitle,
-        subject: subjectInput.value.trim() || 'General',
-        batch: batchInput.value.trim() || 'BAMS',
-        tag: tagInput.value.trim() || 'Tip',
+        subject: sanitizedSubject,
+        batch: sanitizedBatch,
+        tag: sanitizedTag,
         persona: randomPersona
       };
 
@@ -181,25 +272,32 @@
       btn.disabled = true;
       btn.innerText = 'Posting...';
 
-      const { data, error } = await sb.from('tips').insert([newTip]).select();
-      btn.disabled = false;
-      btn.innerText = 'Post Tip';
+      try {
+        const { data, error } = await sb.from('tips').insert([newTip]).select();
+        btn.disabled = false;
+        btn.innerText = 'Post Tip';
 
-      if (error) {
+        if (error) throw error;
+
+        titleInput.value = '';
+        subjectInput.value = '';
+        batchInput.value = '';
+        tagInput.value = '';
+
+        if (data && data.length > 0) {
+          allTips.unshift(data[0]);
+          renderFeed(allTips);
+        } else {
+          fetchTips();
+        }
+      } catch (error) {
+        btn.disabled = false;
+        btn.innerText = 'Post Tip';
         alert('Error submitting tip: ' + error.message);
-        return;
       }
-
-      titleInput.value = '';
-      subjectInput.value = '';
-      batchInput.value = '';
-      tagInput.value = '';
-
-      allTips.unshift(data[0]);
-      renderFeed(allTips);
     }
 
-    // Delete Tip (Protected by Database Policy)
+    // Delete Tip (Admin Protected)
     async function deleteTip(id) {
       if (!confirm('Are you sure you want to delete this tip permanently?')) return;
 
@@ -221,7 +319,7 @@
 
       const { error } = await sb.from('tips').update({ reports: updatedReports }).eq('id', id);
       if (error) {
-        alert('Could not report.');
+        alert('Could not record report.');
         return;
       }
 
@@ -248,7 +346,7 @@
             </div>
           </div>
 
-          <p class="text-slate-100 text-sm leading-relaxed mb-4 whitespace-pre-wrap">${escapeHtml(tip.title)}</p>
+          <p class="text-slate-100 text-sm leading-relaxed mb-4 whitespace-pre-wrap">${renderProtectedBadges(escapeHtml(tip.title))}</p>
 
           <div class="flex items-center justify-between pt-3 border-t border-slate-900 text-xs text-slate-400">
             <span class="text-emerald-500/80 font-mono">#${escapeHtml(tip.tag)}</span>
@@ -262,25 +360,40 @@
       `).join('');
     }
 
+    // Highlight redacted phrases cleanly with badge styling
+    function renderProtectedBadges(str) {
+      return str
+        .replace(/\[Contact Redacted\]/g, '<span class="bg-emerald-950/80 text-emerald-300 border border-emerald-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Contact Redacted]</span>')
+        .replace(/\[Email Redacted\]/g, '<span class="bg-blue-950/80 text-blue-300 border border-blue-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Email Redacted]</span>')
+        .replace(/\[Roll No Redacted\]/g, '<span class="bg-amber-950/80 text-amber-300 border border-amber-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Roll No Redacted]</span>')
+        .replace(/\[Name Redacted\]/g, '<span class="bg-purple-950/80 text-purple-300 border border-purple-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Name Redacted]</span>')
+        .replace(/\[Room Redacted\]/g, '<span class="bg-teal-950/80 text-teal-300 border border-teal-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Room Redacted]</span>')
+        .replace(/\[Restricted Content\]/g, '<span class="bg-red-950/80 text-red-300 border border-red-800 px-1.5 py-0.5 rounded text-[11px] font-mono">[Restricted Content]</span>');
+    }
+
     // Search filter
     function filterTips() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       const filtered = allTips.filter(t => 
-        t.title.toLowerCase().includes(q) ||
-        t.subject.toLowerCase().includes(q) ||
-        t.batch.toLowerCase().includes(q) ||
-        t.tag.toLowerCase().includes(q)
+        (t.title && t.title.toLowerCase().includes(q)) ||
+        (t.subject && t.subject.toLowerCase().includes(q)) ||
+        (t.batch && t.batch.toLowerCase().includes(q)) ||
+        (t.tag && t.tag.toLowerCase().includes(q))
       );
       renderFeed(filtered);
     }
 
-    // Modal & Auth Controls
+    // Modals
+    function openRulesModal() { document.getElementById('rulesModal').classList.remove('hidden'); }
+    function closeRulesModal() { document.getElementById('rulesModal').classList.add('hidden'); }
+
     function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
     function closeLoginModal() { 
       document.getElementById('loginModal').classList.add('hidden'); 
       document.getElementById('loginError').classList.add('hidden');
     }
 
+    // Admin Authentication Handlers
     async function handleAdminLogin(e) {
       e.preventDefault();
       const email = document.getElementById('adminEmail').value;
